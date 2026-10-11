@@ -217,6 +217,21 @@
 .online-reel-item strong{display:block;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.online-reel-item small{display:block;color:#d8c4ed;font-size:10px}
 .online-reel-item.online-winning{border-color:#c99aff;background:#302143}
 .online-reel-result{font-size:12px;color:#d7d0e5;margin-top:9px;min-height:35px}
+
+.online-totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin:16px 0}
+.online-total-card{background:#21172d;border:1px solid #69428a;border-radius:12px;padding:13px}
+.online-total-card b{display:block;font-size:21px;color:#e4b7ff;margin-top:5px}
+.online-total-card small{color:#bca9d2}
+.online-drop-board{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+.online-drop-column{background:#171321;border:1px solid #443254;border-radius:12px;padding:12px;min-width:0}
+.online-drop-card{display:flex;align-items:center;gap:9px;background:#241a31;border:1px solid #514063;border-left:4px solid var(--rarity);border-radius:9px;padding:8px;margin-top:8px}
+.online-drop-card .weapon{width:74px;height:62px;flex:0 0 74px}
+.online-drop-card .weapon img{width:100%;height:100%;object-fit:contain}
+.online-drop-card .online-drop-desc{min-width:0;flex:1}
+.online-drop-card strong{display:block;font-size:12px;overflow-wrap:anywhere}
+.online-drop-card small{display:block;color:#c6b5d6;font-size:11px}
+.online-drop-card b{display:block;color:#87ebbb;margin-top:3px}
+
 .online-round-history{margin-top:16px;display:grid;gap:8px}.online-round-history details{background:#1b1728;border:1px solid #423450;border-radius:8px;padding:10px}
 .online-round-history summary{cursor:pointer;font-weight:700}.online-history-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:10px}
 .online-history-item{background:#241c31;border-radius:7px;padding:8px;font-size:12px}.online-history-item small{display:block;color:#bdb2ce}
@@ -879,6 +894,7 @@ if(['battles','inventory'].includes(location.hash.slice(1)))showView(location.ha
 let onlineSocket=null,onlineRoom=null,onlinePlayerId=sessionStorage.getItem('dz_online_id')||('p'+Math.random().toString(36).slice(2)+Date.now().toString(36));
 sessionStorage.setItem('dz_online_id',onlinePlayerId);
 let onlinePending=false,onlineLastRound=0,onlineAwarded=new Set(),onlineRoundHistory=[];
+let onlineDisplayedScores=[];
 function onlineStatus(message){const el=document.getElementById('online-feed');if(el)el.innerHTML=message}
 function onlineSend(obj){if(!onlineSocket||onlineSocket.readyState!==1){toast('Brak połączenia z serwerem online');return false}onlineSocket.send(JSON.stringify({...obj,playerId:onlinePlayerId,nick:(document.getElementById('online-nick')?.value||'Gracz').trim().slice(0,20)}));return true}
 function onlineConnect(){
@@ -934,16 +950,33 @@ function onlineRender(){const el=document.getElementById('online-room'),setup=do
  const selectedHtml=selected.map((id,i)=>`<span style="display:inline-block;padding:7px;margin:3px;background:#281d3c;border-radius:6px">${i+1}. ${safe(cases[id].name)} · ${fmt(cases[id].price)} PLN <button class="btn small" onclick="selectCase(${id})">ⓘ</button></span>`).join('');
  el.innerHTML=`<div class="online-actions"><b>KOD POKOJU: ${safe(r.code)}</b><button class="btn small" onclick="onlineCopy()">🔗 KOPIUJ LINK NA DISCORD</button><button class="btn small" onclick="onlineLeave()">OPUŚĆ POKÓJ</button></div><p class="muted">${r.rounds} różnych lub powtarzanych skrzynek · ${fmt(r.cost)} PLN / osoba · ${r.ffa?'FFA '+r.ffa:r.mode+' vs '+r.mode} · ${r.status==='waiting'?'OCZEKIWANIE':r.status==='playing'?'TRWA BITWA':'ZAKOŃCZONA'}</p><div class="online-seats">${slots}</div><div class="online-case-preview" style="display:block"><b>🎁 KOLEJNOŚĆ SKRZYNEK:</b><div>${selectedHtml}</div></div>${r.status==='waiting'&&owner?`<button class="btn primary" onclick="onlineStart()" ${mine<0||r.seats.some(s=>!s)?'disabled':''}>⚔ START — WSZYSCY GOTOWI</button>`:''}<div id="online-live"></div>`;
 }
+function onlineDrawBoard(scores){
+ if(!onlineRoom)return;
+ const r=onlineRoom;
+ const totals=document.getElementById('online-scoreboard');
+ if(totals)totals.innerHTML='<h3>💰 SUMA DROPÓW W BITWIE</h3><div class="online-totals">'+scores.map((v,i)=>`<div class="online-total-card"><small>${r.ffa?safe(r.seats[i]?.nick||'Gracz '+(i+1)):'DRUŻYNA '+(i?'B':'A')}</small><b>${fmt(v)} PLN</b></div>`).join('')+'</div>';
+ const board=document.getElementById('online-drop-board');
+ if(!board)return;
+ board.innerHTML='<h3>🎯 WYLOSOWANE SKINY — WSZYSTKIE RUNDY</h3><div class="online-drop-board">'+r.seats.map((seat,i)=>{
+  const drops=onlineRoundHistory.map(h=>({round:h.round,drop:h.drops[i]})).filter(x=>x.drop);
+  const personalTotal=drops.reduce((sum,x)=>sum+x.drop.value,0);
+  return `<div class="online-drop-column"><strong>${safe(seat?.nick||'BOT')} · ${fmt(personalTotal)} PLN</strong>${drops.map(({round,drop})=>{
+   const skin=skins[drop.id];if(!skin)return '';
+   return `<div class="online-drop-card" style="--rarity:${rarityColor(skin)}">${gunSVG(skin)}<div class="online-drop-desc"><small>RUNDA ${round}</small><strong>${safe(skin.name)}</strong><small>${WEAR_SHORT[drop.wear]||''}</small><b>+ ${fmt(drop.value)} PLN</b></div></div>`;
+  }).join('')||'<p class="muted">Jeszcze brak dropów</p>'}</div>`;
+ }).join('')+'</div>';
+}
 function onlineMessage(msg){
  if(msg.type==='error'){toast(msg.message);onlineStatus('⚠ '+safe(msg.message));return}
  if(msg.type==='room'){onlineRoom=msg.room;onlineRender();onlineStatus('Pokój '+safe(msg.room.code)+' · wyślij link koledze.');return}
- if(msg.type==='started'){onlineLastRound=0;onlineRoundHistory=[];onlinePending=true;onlineStatus('⚔ Bitwa rozpoczęta! Wyniki losuje serwer.');if(onlineRoom){onlineRoom.status='playing';onlineRender()}return}
+ if(msg.type==='started'){onlineLastRound=0;onlineRoundHistory=[];onlineDisplayedScores=[];onlinePending=true;onlineStatus('⚔ Bitwa rozpoczęta! Wyniki losuje serwer.');if(onlineRoom){onlineRoom.status='playing';onlineRender()}return}
  if(msg.type==='round'){
   onlineLastRound=msg.round;
   const el=document.getElementById('online-live');if(!el||!onlineRoom)return;
   const c=cases[msg.caseId],duration=3900,winIndex=29,tileW=116,gap=6;
   const players=msg.drops.map((d,i)=>({d,i,skin:{...skins[d.id],wear:d.wear,value:d.value}}));
-  el.innerHTML=`<h3>⚔ RUNDA ${msg.round} / ${onlineRoom.rounds} — ${safe(c.name)} — LOSOWANIE NA ŻYWO</h3><p class="muted">Wszyscy uczestnicy widzą wyniki wylosowane przez ten sam serwer. Każdy ma własną rolkę.</p><div class="online-reel-grid">${players.map(({i})=>`<div class="online-reel-box"><div class="online-reel-head">${safe(onlineRoom.seats[i]?.nick||'BOT')}<span>LOSOWANIE...</span></div><div class="online-reel-window" id="online-reel-${i}"><div class="online-reel-strip" id="online-strip-${i}"></div></div><div class="online-reel-result" id="online-result-${i}">Trwa otwieranie skrzynki...</div></div>`).join('')}</div><div id="online-scoreboard"></div><div class="online-round-history" id="online-round-history"></div>`;
+  el.innerHTML=`<h3>⚔ RUNDA ${msg.round} / ${onlineRoom.rounds} — ${safe(c.name)} — LOSOWANIE NA ŻYWO</h3><p class="muted">Wszyscy uczestnicy widzą wyniki wylosowane przez ten sam serwer. Każdy ma własną rolkę.</p><div class="online-reel-grid">${players.map(({i})=>`<div class="online-reel-box"><div class="online-reel-head">${safe(onlineRoom.seats[i]?.nick||'BOT')}<span>LOSOWANIE...</span></div><div class="online-reel-window" id="online-reel-${i}"><div class="online-reel-strip" id="online-strip-${i}"></div></div><div class="online-reel-result" id="online-result-${i}">Trwa otwieranie skrzynki...</div></div>`).join('')}</div><div id="online-scoreboard"></div><div id="online-drop-board"></div><div class="online-round-history" id="online-round-history"></div>`;
+  onlineDrawBoard(onlineDisplayedScores.length?onlineDisplayedScores:Array(onlineRoom.ffa||2).fill(0));
   for(const {d,i,skin} of players){
    const reel=document.getElementById('online-reel-'+i),strip=document.getElementById('online-strip-'+i);
    const sequence=Array.from({length:37},(_,j)=>j===winIndex?skin:drawCaseVariant(c));
@@ -960,8 +993,9 @@ function onlineMessage(msg){
   setTimeout(()=>{
    if(!onlineRoom||onlineRoom.code!==roomCode||onlineLastRound!==snapshot)return;
    for(const {i,skin} of players){const result=document.getElementById('online-result-'+i);if(result)result.innerHTML=`<strong>${safe(skin.name)} (${WEAR_SHORT[skin.wear]})</strong> · <b>${fmt(skin.value)} PLN</b>`}
-   const scores=document.getElementById('online-scoreboard');if(scores)scores.innerHTML=`<p class="muted">WYNIKI ŁĄCZNE: ${msg.scores.map((v,i)=>(onlineRoom.ffa?'Gracz '+(i+1):'Drużyna '+(i?'B':'A'))+': '+fmt(v)+' PLN').join(' · ')}</p>`;
+   onlineDisplayedScores=msg.scores.slice();
    onlineRoundHistory.push({round:msg.round,drops:msg.drops});
+   onlineDrawBoard(onlineDisplayedScores);
    const history=document.getElementById('online-round-history');if(history)history.innerHTML=onlineRoundHistory.map(entry=>`<details ${entry.round===snapshot?'open':''}><summary>RUNDA ${entry.round} — WYNIKI WSZYSTKICH GRACZY</summary><div class="online-history-items">${entry.drops.map((drop,i)=>`<div class="online-history-item"><b>${safe(onlineRoom.seats[i]?.nick||'BOT')}</b><small>${safe(skins[drop.id].name)} · ${WEAR_SHORT[drop.wear]}</small><strong>${fmt(drop.value)} PLN</strong></div>`).join('')}</div></details>`).join('');
   },duration+130);
   return;

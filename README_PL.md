@@ -14,3 +14,4 @@
 5. Każdy gracz klika 🎁 +1 000 000 PLN. W Case Battle Online wybierz skrzynkę, kliknij „Dodaj skrzynkę”, powtórz dla kolejnych skrzynek i utwórz pokój.
 
 **Uwaga:** To demo wyłącznie z wirtualnymi PLN. Saldo i ekwipunek są lokalne w przeglądarce, bez kont i zabezpieczeń przed manipulacją. Bonus jest jednorazowy na przeglądarkę, nie na osobę. Nie używać do prawdziwych pieniędzy.
+\n\n## v26 — widoczne dropy i sumowanie\nW bitwie online pod rolkami jest stała tablica skinów każdego gracza z nazwą, stanem, ceną i rundą. Po zakończeniu każdej animacji wynik zostaje dodany do listy, a suma drużyny lub gracza jest aktualizowana. Poprzednie dropy pozostają widoczne w kolejnych rundach.\n
