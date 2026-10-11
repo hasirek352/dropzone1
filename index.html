@@ -338,6 +338,57 @@ body:before{background-image:linear-gradient(#ffffff02 1px,transparent 1px),line
 .dz-sequence-card .weapon img{width:100%;height:100%;object-fit:contain}.dz-sequence-card strong{font-size:12px;text-align:center;line-height:1.3;overflow-wrap:anywhere}.dz-sequence-card .dz-seq-price{font-size:12px;font-weight:900;color:#caff4d}.dz-sequence-card .dz-seq-info{background:#323c23;color:#eaffbf;border:1px solid #8db747;border-radius:6px;padding:6px 12px;cursor:pointer}
 #online-selected-list .dz-seq-remove:hover{background:#aa4053}.online-case-preview{background:#1c1f26!important;border-color:#454a52!important}.online-log{background:#14161d!important;border-color:#353941!important}
 @media(max-width:900px){.case-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:600px){.case-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dz-case-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.dz-picker-card{min-height:210px}.dz-picker-card .weapon{height:95px}#online-selected-list,.online-sequence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#dz-online{padding:13px!important}#dz-online .online-reel-item{flex-basis:145px;width:145px;height:168px}#dz-online .online-reel-item .weapon{height:104px}#dz-online .online-reel-window{height:188px}}
+
+/* DROPZONE v31 — spójne, dopracowane kafle skrzynek */
+.case-grid{gap:18px}
+.case-card{padding:0 0 17px!important;background:linear-gradient(155deg,#20252c 0%,#15191e 70%)!important;border:1px solid #3a4147!important;border-radius:17px!important;box-shadow:0 9px 24px #0004;transition:transform .25s,border-color .25s,box-shadow .25s}
+.case-card:hover{transform:translateY(-6px);border-color:#b8ef4a!important;box-shadow:0 18px 40px #0009,0 0 0 1px #a4ed3c44}
+.case-picture.case-poster{height:212px;background:radial-gradient(ellipse at 50% 60%,var(--poster-glow,#6ca3a522),transparent 70%),radial-gradient(ellipse at 50% 95%,#caff4d1a,transparent 60%),linear-gradient(145deg,#2c3138,#181d22 75%)!important;border-bottom:1px solid #ffffff14;border-radius:16px 16px 0 0}
+.case-poster:before{background:linear-gradient(145deg,#ffffff0d,transparent 40%),repeating-linear-gradient(135deg,transparent 0 36px,#ffffff04 37px 38px)}
+.case-poster .poster-orbit{width:160px;height:160px;top:19px;border-color:#ffffff14;box-shadow:0 0 0 26px #ffffff04,0 0 0 53px #ffffff03}
+.case-card .poster-weapon{inset:24px 12px 33px;transform:rotate(-5deg);filter:drop-shadow(0 14px 16px #0008)}
+.case-card:hover .poster-weapon{transform:rotate(-1deg) scale(1.08)}
+.case-card .tag{top:12px;left:12px;background:#202725e8;color:#caff4d;border:1px solid #caff4d55;box-shadow:none;border-radius:7px;padding:7px 10px}
+.case-card .poster-best{font-size:10px;letter-spacing:.3px;color:#e6f4d2;padding:12px 6px 9px;background:linear-gradient(transparent,#141a20e8)}
+.case-card h3{font-size:23px;letter-spacing:.3px;margin-top:17px;margin-bottom:8px}
+.case-card p{color:#a9b1b7}
+.case-card .card-bottom{border-top:1px solid #ffffff12;padding-top:14px;margin-top:8px}
+.case-card .price{font-size:16px;font-weight:900}
+.case-card .case-tap{color:#d9e3e5;font-size:11px;font-weight:800}
+/* Picker: wyraźne zdjęcie, czytelna nazwa i cena, duże + / − */
+.dz-picker-card{position:relative;isolation:isolate;overflow:hidden;min-height:269px;background:linear-gradient(155deg,#2b3038,#1a1e25 72%)!important;border:1px solid #4a505a!important;border-radius:16px!important;padding:12px 12px 13px!important;gap:9px!important;box-shadow:0 10px 24px #0004;transition:transform .2s,border-color .2s,box-shadow .2s}
+.dz-picker-card:before,.dz-sequence-card:before{content:"";position:absolute;z-index:-1;top:25px;left:0;right:0;height:135px;background:radial-gradient(ellipse at center,#caff4d20,transparent 67%);pointer-events:none}
+.dz-picker-card:hover{transform:translateY(-3px);border-color:#a3d948!important;box-shadow:0 15px 30px #0009}
+.dz-picker-card.chosen{border-color:#caff4d!important;box-shadow:inset 0 0 0 1px #caff4d88,0 0 24px #caff4d12}
+.dz-picker-card .price{top:10px;right:10px;background:#0c1117e8!important;color:#d6ff80!important;border:1px solid #4b6240;border-radius:8px;padding:7px 9px;font-size:11px}
+.dz-picker-card .weapon{height:139px!important;width:100%;margin-top:17px;display:grid;place-items:center;filter:drop-shadow(0 15px 10px #000a);transition:transform .25s}
+.dz-picker-card:hover .weapon{transform:scale(1.07) rotate(-2deg)}
+.dz-picker-card strong{font-size:13px!important;line-height:1.3;min-height:34px;display:flex;align-items:center;justify-content:center;letter-spacing:.2px}
+.dz-picker-card .dz-picker-qty{width:100%;margin-top:auto;background:#10151b;border:1px solid #424b50;border-radius:9px;padding:5px;display:flex;align-items:center;justify-content:space-between}
+.dz-picker-card .dz-picker-qty button{background:#343d3b;color:#e9ffce;border:1px solid #596b4b;border-radius:7px;width:35px;height:34px;font-size:20px;font-weight:900}
+.dz-picker-card .dz-picker-qty button:hover{background:#caff4d;color:#152008}
+.dz-picker-card .dz-picker-qty b{color:#fff;font-size:15px}
+/* Kafle już dodanych rund */
+#online-selected-list,.online-sequence-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:13px!important}
+.dz-sequence-card{min-height:224px;border-radius:15px!important;background:linear-gradient(155deg,#2a3036,#171c22)!important;border:1px solid #444e52!important;padding:12px!important;box-shadow:0 8px 20px #0004;transition:transform .2s,border-color .2s}
+.dz-sequence-card:hover{transform:translateY(-3px);border-color:#caff4d!important}
+.dz-sequence-card .dz-seq-number{border-radius:7px;background:#caff4d;color:#162007;padding:6px 8px}
+.dz-sequence-card .weapon{height:125px;margin-top:22px;filter:drop-shadow(0 13px 11px #000b)}
+.dz-sequence-card strong{font-size:12px;min-height:30px}
+.dz-sequence-card .dz-seq-price{font-size:13px}
+.dz-sequence-card .dz-seq-remove{background:#333a43;border:1px solid #5b616a;border-radius:7px}
+.dz-sequence-card .dz-seq-info{background:#26341d;border-color:#668b38;border-radius:8px}
+@media(max-width:600px){
+ .case-picture.case-poster{height:160px}
+ .case-card h3{font-size:19px}
+ .dz-picker-card{min-height:224px;padding:9px!important}
+ .dz-picker-card .weapon{height:96px!important}
+ .dz-picker-card strong{font-size:11px!important}
+ #online-selected-list,.online-sequence-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dz-sequence-card{min-height:194px}
+ .dz-sequence-card .weapon{height:91px}
+}
+
 </style></head><body>
 <header class="top"><div class="wrap"><a class="logo" href="#cases" onclick="showView('cases')"><span class="mark">D</span><span>DROP<b>ZONE</b></span></a><nav class="nav"><button class="active" data-nav="cases" onclick="showView('cases')">SKRZYNIE</button><button data-nav="battles" onclick="showView('battles')">⚔ CASE BATTLE</button><button data-nav="inventory" onclick="showView('inventory')">EKWIPUNEK</button></nav><div class="top-right"><span class="pill">SYSTEM ONLINE</span><button class="btn small" onclick="claimDemoBonus()" title="Bonus testowy wirtualnych PLN">🎁 +1 000 000 PLN</button><span class="wallet">◈ <span id="balance">0</span> PLN</span></div></div></header>
 <div class="wrap"><div class="view active" id="view-cases"><section class="hero"><div><div class="eyebrow">✦ NEXT-GEN CASE OPENING</div><h1>OTWÓRZ.<br><em>ZDOBĄDŹ.</em><br>ZWYCIĘŻAJ.</h1><p>Otwieraj skrzynie ze skinami inspirowanymi CS2, buduj kolekcję i walcz w Case Battle. Wirtualne PLN (demo). Zero wpłat i wypłat.</p><div class="hero-actions"><button class="btn primary" onclick="document.getElementById('case-section').scrollIntoView({behavior:'smooth'})">ODKRYJ SKRZYNIE ↗</button><button class="btn" onclick="showView('battles')">⚔ CASE BATTLE</button></div></div><div class="hero-art"><div class="halo"></div><div id="hero-weapon"></div><div class="floating one">✦ EXCLUSIVE DROP</div><div class="floating two">★ LEGENDARY SKINS</div></div></section><section class="section" id="case-section"><div class="section-head"><div><div class="eyebrow">THE COLLECTION / 78+ CASES · SKRZYNIE OD 1,50 DO 15 000 PLN</div><h2 class="heading">WYBIERZ SWÓJ <em>DROP.</em></h2><p class="muted">Kliknij dowolną skrzynię, aby zobaczyć podgląd i wybrać liczbę otwarć. Każda zawiera teraz więcej tańszych skinów i rzadkie nagrody.</p></div><span class="pill">WIRTUALNA ROZGRYWKA · PLN DEMO</span></div><div class="dz-catalog-toolbar"><input id="dz-case-search" type="search" placeholder="🔎 Szukaj skrzynki po nazwie..." oninput="renderCases()" aria-label="Szukaj skrzynek"><select id="dz-case-sort" onchange="renderCases()" aria-label="Sortuj skrzynki"><option value="price">Cena: od najtańszych</option><option value="desc">Cena: od najdroższych</option><option value="name">Nazwa: A–Z</option></select><span id="dz-case-count"></span></div><div class="chips" id="case-filters"><button class="chip active" onclick="filterCases('all',this)">WSZYSTKIE</button><button class="chip" onclick="filterCases('cheap',this)">DO 10 PLN</button><button class="chip" onclick="filterCases('low',this)">10–50 PLN</button><button class="chip" onclick="filterCases('mid',this)">50–200 PLN</button><button class="chip" onclick="filterCases('high',this)">200–1000 PLN</button><button class="chip" onclick="filterCases('premium',this)">1000–5000 PLN</button><button class="chip" onclick="filterCases('ultra',this)">POWYŻEJ 5000 PLN</button></div><div class="case-grid" id="case-grid"></div></section><section class="section" id="skin-gallery" style="display:none" aria-hidden="true"><div class="section-head"><div><div class="eyebrow">CS2 / SKIN COLLECTION</div><h2 class="heading">SKINY <em>CS2.</em></h2><p class="muted">Oryginalne nazwy i grafiki skinów. Wartości wirtualnych PLN są umowne i dotyczą wyłącznie tego dema.</p></div><span class="pill" id="skin-load-status">ŁADOWANIE GRAFIK</span></div><div class="skin-showcase" id="skin-showcase"></div></section><div class="banner"><div><div class="eyebrow">SQUAD UP / DROPZONE ARENA</div><h2>GOTOWY NA <span style="color:#b998ff">CASE BATTLE?</span></h2><p>Wybierz tryb, ustaw rundy i zmierz się z botami.</p></div><button class="btn primary" onclick="showView('battles')">PRZEJDŹ DO BITEW →</button></div></div>
@@ -997,7 +1048,7 @@ function onlinePickerRender(){
  const filtered=[...cases].sort((a,b)=>a.price-b.price).filter(c=>c.name.toLowerCase().includes(query));
  el.innerHTML=filtered.map(c=>{
   const qty=onlineSelectedCases.filter(id=>id===c.id).length;
-  const representative=c.drops&&c.drops.length?skins[c.drops[0].id]:null;
+  const representative=c.pool?.length?featuredSkin(c):null;
   return `<div class="dz-picker-card ${qty?'chosen':''}"><span class="price">${fmt(c.price)} PLN</span>${representative?gunSVG(representative):'<div class="weapon">🎁</div>'}<strong>${safe(c.name)}</strong><div class="dz-picker-qty"><button onclick="onlinePickerQty(${c.id},-1)" aria-label="Usuń jedną skrzynkę">−</button><b>${qty}</b><button onclick="onlinePickerQty(${c.id},1)" aria-label="Dodaj jedną skrzynkę">+</button></div></div>`
  }).join('')||'<p class="muted">Nie znaleziono skrzynek.</p>';
  document.getElementById('dz-picker-count').textContent=filtered.length+' skrzynek';
@@ -1005,7 +1056,7 @@ function onlinePickerRender(){
 }
 function onlineSequenceCard(id,i,removable){
  const c=cases[id];if(!c)return '';
- const representative=c.drops?.length?skins[c.drops[0].id]:null;
+ const representative=c.pool?.length?featuredSkin(c):null;
  return `<div class="dz-sequence-card"><span class="dz-seq-number">RUNDA ${i+1}</span>${removable?`<button class="dz-seq-remove" onclick="onlineRemoveCase(${i})" title="Usuń rundę ${i+1}">✕</button>`:''}${representative?gunSVG(representative):'<div class="weapon">🎁</div>'}<strong>${safe(c.name)}</strong><span class="dz-seq-price">${fmt(c.price)} PLN</span>${!removable?`<button class="dz-seq-info" onclick="selectCase(${id})">ⓘ SKINY</button>`:''}</div>`;
 }
 function onlineRemoveCase(i){onlineSelectedCases.splice(i,1);onlineRenderSelected()}

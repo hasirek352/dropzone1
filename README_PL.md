@@ -29,3 +29,9 @@ W Case Battle Online przycisk WYBIERZ SKRZYNKI otwiera galerię 78 skrzynek z gr
 
 ## v30 — poprawka zgodności rolki z dropem
 Usunięto błędne sztywne obliczanie przesunięcia rolki (164 px), które nie zgadzało się z faktycznym CSS v29 (175 px desktop / 145 px mobile). Wskaźnik jest teraz centrowany na rzeczywistym kafelku wygranej przy pomocy offsetLeft/offsetWidth, a wynik nadal pochodzi z serwera. Wygrany kafelek zostaje dodatkowo podświetlony po zakończeniu animacji.
+
+## v31 — nowe kafelki skrzynek
+Odświeżony wygląd kafelków w katalogu, wyborze do bitwy i kolejności rund. Ciemny grafit, limonkowe akcenty, większe grafiki skinów, czytelne ceny i przyciski ilości. Grafiki nadal przedstawiają skiny z danej skrzynki (tym razem reprezentatywny cenny skin), nie oryginalne okładki KeyDrop. Bez zmian logiki serwera, pul i procentów.
+
+## v32 — poprawka wskaźnika losowania
+W v31 animacja online nadal zawierała stałą szerokość kafelka 164px, podczas gdy CSS używał 175px / 145px. Naprawiono bezpośrednio w aktualnym kodzie: pozycja zatrzymania obliczana jest z offsetLeft i offsetWidth wygranego kafelka. Analogiczną poprawkę zastosowano w lokalnych rolkach. Wylosowane wyniki i szanse pozostają bez zmian.
