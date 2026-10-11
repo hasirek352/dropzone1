@@ -15,7 +15,7 @@ const server=http.createServer((req,res)=>{
 const wss=new WebSocketServer({server,path:'/ws',maxPayload:2048});
 const send=(ws,obj)=>{if(ws?.readyState===WebSocket.OPEN)ws.send(JSON.stringify(obj))};
 const error=(ws,message)=>send(ws,{type:'error',message});
-const view=r=>({code:r.code,owner:r.owner,mode:r.mode,ffa:r.ffa,caseId:r.caseId,rounds:r.rounds,cost:r.cost,status:r.status,seats:r.seats.map(s=>s?{id:s.id,nick:s.nick,bot:s.bot}:null)});
+const view=r=>({code:r.code,owner:r.owner,mode:r.mode,ffa:r.ffa,caseId:r.caseId,caseIds:r.caseIds,rounds:r.rounds,cost:r.cost,status:r.status,seats:r.seats.map(s=>s?{id:s.id,nick:s.nick,bot:s.bot}:null)});
 const broadcast=(r,obj)=>{for(const s of r.seats)if(s&&!s.bot)send(s.ws,obj)};
 const publish=r=>broadcast(r,{type:'room',room:view(r)});
 const roomOf=ws=>[...rooms.values()].find(r=>r.seats.some(s=>s?.ws===ws));
@@ -25,8 +25,8 @@ const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function run(r){
  r.status='playing';r.matchId=crypto.randomUUID();broadcast(r,{type:'started'});const scores=Array(r.ffa||2).fill(0),allDrops=[];
  for(let n=1;n<=r.rounds;n++){
-  const drops=r.seats.map(()=>pick(cases[r.caseId]));drops.forEach((d,i)=>{scores[r.ffa?i:Math.floor(i/r.mode)]+=d.value;allDrops.push(d)});
-  broadcast(r,{type:'round',round:n,drops,scores});await sleep(2600);
+  const drops=r.seats.map(()=>pick(cases[r.caseIds[n-1]]));drops.forEach((d,i)=>{scores[r.ffa?i:Math.floor(i/r.mode)]+=d.value;allDrops.push(d)});
+  broadcast(r,{type:'round',round:n,caseId:r.caseIds[n-1],drops,scores});await sleep(5200);
  }
  const extreme=r.rule==='underdog'?Math.min(...scores):Math.max(...scores);
  const winnerTeams=scores.map((x,i)=>x===extreme?i:-1).filter(i=>i>=0);
@@ -40,9 +40,11 @@ wss.on('connection',ws=>{
   const r=roomOf(ws);
   if(m.type==='leave'){remove(ws);return}
   if(m.type==='create'){
-   if(r)return error(ws,'Najpierw opuść obecny pokój');const mode=Number(m.mode),ffa=Number(m.ffa),caseId=Number(m.caseId),rounds=Number(m.rounds);
-   if(![1,2,3].includes(mode)||![0,3,4,5,6].includes(ffa)||!Number.isInteger(caseId)||!cases[caseId]||![1,3,5,10].includes(rounds))return error(ws,'Nieprawidłowe ustawienia');
-   const code=crypto.randomBytes(4).toString('hex').toUpperCase();const nr={code,owner:id,mode,ffa,caseId,rounds,cost:Math.round(cases[caseId].price*rounds*100)/100,status:'waiting',seats:Array(ffa||mode*2).fill(null),created:Date.now()};nr.seats[0]={id,nick,ws,bot:false};rooms.set(code,nr);publish(nr);return;
+   if(r)return error(ws,'Najpierw opuść obecny pokój');const mode=Number(m.mode),ffa=Number(m.ffa);
+   const caseIds=Array.isArray(m.caseIds)?m.caseIds.map(Number):[];
+   if(![1,2,3].includes(mode)||![0,3,4,5,6].includes(ffa)||caseIds.length<1||caseIds.length>30||caseIds.some(id=>!Number.isInteger(id)||!cases[id]))return error(ws,'Nieprawidłowe ustawienia lub skrzynki (maks. 30)');
+   const code=crypto.randomBytes(4).toString('hex').toUpperCase();const cost=Math.round(caseIds.reduce((sum,id)=>sum+cases[id].price,0)*100)/100;
+   const nr={code,owner:id,mode,ffa,caseId:caseIds[0],caseIds,rounds:caseIds.length,cost,status:'waiting',seats:Array(ffa||mode*2).fill(null),created:Date.now()};nr.seats[0]={id,nick,ws,bot:false};rooms.set(code,nr);publish(nr);return;
   }
   if(m.type==='join'){
    if(r)return error(ws,'Najpierw opuść obecny pokój');const target=rooms.get(String(m.code||'').toUpperCase());if(!target||target.status!=='waiting')return error(ws,'Nie znaleziono otwartego pokoju');if(target.seats.some(s=>s?.id===id))return error(ws,'Już jesteś w pokoju');const i=target.seats.findIndex(s=>!s);if(i<0)return error(ws,'Pokój jest pełny');target.seats[i]={id,nick,ws,bot:false};publish(target);return;

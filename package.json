@@ -1,1 +1,15 @@
-{"name":"dropzone-online","version":"23.0.0","private":true,"description":"DROPZONE multiplayer demo — virtual PLN only","scripts":{"start":"node server.js"},"engines":{"node":">=20"},"dependencies":{"ws":"^8.18.0"}}
+{
+  "name": "dropzone-online",
+  "version": "25.0.0",
+  "private": true,
+  "description": "DROPZONE multiplayer demo — virtual PLN only",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
