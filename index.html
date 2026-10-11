@@ -549,18 +549,18 @@ const skins=[
 {id:79,name:'AK-47 | Vulcan',gun:'rifle',color:'#a5d3ff',rarity:'Covert',value:1800},
 {id:80,name:'Butterfly Knife | Marble Fade',gun:'knife',color:'#fbb676',rarity:'Legendary',value:12000},
 {id:81,name:'M4A1-S | Welcome to the Jungle',gun:'rifle',color:'#8ac98c',rarity:'Covert',value:11500},
-{id:82,name:'Karambit | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:47000},
-{id:83,name:'M9 Bayonet | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:41000},
-{id:84,name:'Butterfly Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:39000},
-{id:85,name:'Talon Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:27500},
-{id:86,name:'Bayonet | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:19500},
-{id:87,name:'Flip Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:14000},
-{id:88,name:'Gut Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:8500},
-{id:89,name:'Huntsman Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:11000},
-{id:90,name:'Shadow Daggers | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:7200},
-{id:91,name:'Falchion Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:10500},
-{id:92,name:'Bowie Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:9000},
-{id:93,name:'Navaja Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:5500}
+{id:82,name:'Karambit | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:47000,image:'assets/emerald-knife-01.svg'},
+{id:83,name:'M9 Bayonet | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:41000,image:'assets/emerald-knife-02.svg'},
+{id:84,name:'Butterfly Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:39000,image:'assets/emerald-knife-03.svg'},
+{id:85,name:'Talon Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:27500,image:'assets/emerald-knife-04.svg'},
+{id:86,name:'Bayonet | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:19500,image:'assets/emerald-knife-05.svg'},
+{id:87,name:'Flip Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:14000,image:'assets/emerald-knife-06.svg'},
+{id:88,name:'Gut Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:8500,image:'assets/emerald-knife-07.svg'},
+{id:89,name:'Huntsman Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:11000,image:'assets/emerald-knife-08.svg'},
+{id:90,name:'Shadow Daggers | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:7200,image:'assets/emerald-knife-09.svg'},
+{id:91,name:'Falchion Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:10500,image:'assets/emerald-knife-10.svg'},
+{id:92,name:'Bowie Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:9000,image:'assets/emerald-knife-11.svg'},
+{id:93,name:'Navaja Knife | Gamma Doppler Emerald',gun:'knife',color:'#39edac',rarity:'Legendary',value:5500,image:'assets/emerald-knife-12.svg'}
 ];
 // Zachowujemy indeksowanie po ID także dla starszych zapisanych ekwipunków.
 skins.sort((a,b)=>a.id-b.id);
@@ -1072,7 +1072,7 @@ async function loadCS2Images(){
   if(!response.ok)throw Error('Brak katalogu');
   const list=await response.json();
   const normalizeName=n=>String(n||'').replace(/^★\s*/,'').replace(/^★\s*/,'').replace(/^Karambit \|/,'Karambit |').replace(/^Butterfly Knife \|/,'Butterfly Knife |').trim().toLowerCase();
-  for(const skin of skins){let match=list.find(x=>normalizeName(x.name)===normalizeName(skin.name)&&x.image);if(match)skin.image=match.image}
+  for(const skin of skins){if(skin.image)continue;let match=list.find(x=>normalizeName(x.name)===normalizeName(skin.name)&&x.image);if(match)skin.image=match.image}
   skinImagesReady=skins.some(s=>Boolean(s.image));renderCases();renderInventory();
   const hero=document.getElementById('hero-weapon');if(hero)hero.innerHTML=gunSVG(skins[9]);
   if(document.getElementById('case-modal').classList.contains('show')){const c=cases[currentCase];document.getElementById('drop-list').innerHTML=c.pool.map(id=>{let sk=skins[id];return `<div class="drop-mini" style="--rarity:${rarityColor(sk)}">${gunSVG(sk)}<strong>${safe(sk.name)}</strong><small>${safe(sk.rarity)} · ${fmt(sk.value)} PLN</small></div>`}).join('')}

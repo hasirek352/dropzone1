@@ -46,3 +46,6 @@ Nowe autorskie okładki skrzynek (wektorowe kufry, indywidualne akcenty i numery
 - Są to ceny i skiny demonstracyjne; wartości są orientacyjne, nie odzwierciedlają rynku.
 - Serwer udostępnia statyczne obrazy `/assets/case-XX.webp`; bez folderu assets okładki nie będą działały.
 - Podmień wszystkie pliki i folder `assets` na GitHubie.
+
+## v36 — Emerald knives artwork
+12 osobnych lokalnych ilustracji SVG dla modeli noży Emerald (ID 82–93). Obrazki ładowane z assets i nie są nadpisywane przez zewnętrzne API. Bez zmian szans, cen i multiplayera. Ilustracje stylizowane, nie są oficjalnymi renderami CS2.
