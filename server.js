@@ -37,11 +37,21 @@ const server=http.createServer((req,res)=>{
 const wss=new WebSocketServer({server,path:'/ws',maxPayload:2048});
 const send=(ws,obj)=>{if(ws?.readyState===WebSocket.OPEN)ws.send(JSON.stringify(obj))};
 const error=(ws,message)=>send(ws,{type:'error',message});
-const view=r=>({code:r.code,owner:r.owner,mode:r.mode,ffa:r.ffa,caseId:r.caseId,caseIds:r.caseIds,rounds:r.rounds,cost:r.cost,status:r.status,seats:r.seats.map(s=>s?{id:s.id,nick:s.nick,bot:s.bot}:null)});
+const view=r=>({code:r.code,owner:r.owner,mode:r.mode,ffa:r.ffa,caseId:r.caseId,caseIds:r.caseIds,rounds:r.rounds,cost:r.cost,status:r.status,startsAt:r.startsAt||null,seats:r.seats.map(s=>s?{id:s.id,nick:s.nick,bot:s.bot}:null)});
 const broadcast=(r,obj)=>{for(const s of r.seats)if(s&&!s.bot)send(s.ws,obj)};
 const publish=r=>broadcast(r,{type:'room',room:view(r)});
 const roomOf=ws=>[...rooms.values()].find(r=>r.seats.some(s=>s?.ws===ws));
-function remove(ws){const r=roomOf(ws);if(!r)return;const i=r.seats.findIndex(s=>s?.ws===ws);if(i>=0)r.seats[i]=null;if(r.status==='waiting'){if(r.owner===ws.playerId){const other=r.seats.find(s=>s&&!s.bot);if(other)r.owner=other.id;else{rooms.delete(r.code);return}}publish(r)}else if(!r.seats.some(s=>s&&!s.bot))rooms.delete(r.code)}
+function remove(ws){
+ const r=roomOf(ws);if(!r)return;
+ const i=r.seats.findIndex(s=>s?.ws===ws);if(i>=0)r.seats[i]=null;
+ if(r.status==='countdown'){
+  clearTimeout(r.startTimer);r.startTimer=null;r.startsAt=null;r.status='waiting';
+ }
+ if(r.status==='waiting'){
+  if(r.owner===ws.playerId){const other=r.seats.find(s=>s&&!s.bot);if(other)r.owner=other.id;else{rooms.delete(r.code);return}}
+  publish(r);
+ }else if(!r.seats.some(s=>s&&!s.bot))rooms.delete(r.code);
+}
 function pick(c){const max=0xffffffff;const n=crypto.randomBytes(4).readUInt32BE(0)/ (max+1)*100;let r=n;for(const d of c.drops){r-=d.chance;if(r<=0)return {id:d.id,wear:d.wear,value:d.value}}const d=c.drops.at(-1);return{id:d.id,wear:d.wear,value:d.value}}
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function run(r){
@@ -79,7 +89,20 @@ wss.on('connection',ws=>{
    if(r.owner!==id)return error(ws,'Tylko gospodarz dodaje boty');if(!Number.isInteger(index)||index<0||index>=r.seats.length)return;const s=r.seats[index];if(s&&!s.bot)return error(ws,'Slot zajęty przez gracza');r.seats[index]=s?null:{id:'bot'+index,nick:'BOT '+(index+1),bot:true};publish(r);return;
   }
   if(m.type==='start'){
-   if(r.owner!==id)return error(ws,'Tylko gospodarz rozpoczyna');if(r.seats.some(s=>!s))return error(ws,'Najpierw zapełnij wszystkie sloty');run(r).catch(e=>console.error('battle error',e));return;
+   if(r.owner!==id)return error(ws,'Tylko gospodarz rozpoczyna');
+   if(r.seats.some(s=>!s))return error(ws,'Najpierw zapełnij wszystkie sloty');
+   // v57: serwer zarządza odliczaniem. Tylko jedno uruchomienie na pokój.
+   r.status='countdown';r.startsAt=Date.now()+5000;publish(r);
+   r.startTimer=setTimeout(()=>{
+    r.startTimer=null;
+    if(rooms.get(r.code)!==r||r.status!=='countdown')return;
+    if(r.seats.some(s=>!s)){
+     r.status='waiting';r.startsAt=null;publish(r);return;
+    }
+    r.startsAt=null;
+    run(r).catch(e=>console.error('battle error',e));
+   },5000);
+   return;
   }
  });
  ws.on('close',()=>remove(ws));ws.on('error',()=>remove(ws));

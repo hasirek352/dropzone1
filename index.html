@@ -520,6 +520,32 @@
 #battle-modal .v55-battle-strip{margin:5px 0 12px}
 @media(max-width:850px){.v55-battle-strip{flex-wrap:wrap}.v55-round-tally{flex:1 0 100px}.v55-battle-cost{flex:1 0 130px}.v55-case-track{order:3;flex-basis:100%;width:100%}}
 @media(max-width:520px){.v55-battle-strip{gap:8px;padding:9px}.v55-case-thumb{flex-basis:65px;width:65px;height:73px}.v55-case-thumb .dz-art-cover{height:44px!important}.v55-battle-cost strong{font-size:17px}#view-battles.v55-battle-running .dz-reveal-grid{grid-template-columns:1fr 1fr!important;gap:6px!important}#view-battles.v55-battle-running .dz-reveal-won strong{font-size:11px!important}#view-battles.v55-battle-running .dz-reveal-won b{font-size:16px!important}#view-battles.v55-battle-running #online-room{padding:8px!important}}
+
+/* DROPZONE v57 — widoczny start pokoju i zsynchronizowany countdown. */
+#view-battles #online-room .online-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:13px 14px;border:1px solid #394453;border-radius:11px;background:linear-gradient(100deg,#151b24,#11151d);margin-bottom:12px}
+#view-battles #online-room .online-actions .dz57-code{color:#d9ddeb;font-size:12px;letter-spacing:.4px;margin-right:auto;white-space:nowrap}
+#view-battles #online-room .online-actions .dz57-start{order:1;min-width:164px;background:#b8ff3e;color:#162207;border-color:#b8ff3e;box-shadow:0 5px 23px #b8ff3e19;font-weight:950}
+#view-battles #online-room .online-actions .dz57-start:hover{background:#cbff72;border-color:#cbff72}
+#view-battles #online-room .online-actions .dz57-start:disabled{opacity:.45;box-shadow:none;cursor:not-allowed;transform:none}
+#view-battles #online-room .online-actions .dz57-timewaiting{order:1;display:inline-flex;gap:8px;align-items:center;color:#d9ff99;background:#253119;border:1px solid #5a742b;border-radius:8px;padding:11px 16px;font-size:11px;font-weight:900;letter-spacing:.4px}
+#view-battles #online-room .online-actions .dz57-invite{order:2}
+#view-battles #online-room .online-actions .dz57-leave{order:3}
+#view-battles #online-room .dz57-owner-hint{font-size:10px;color:#9caab7;margin:0 0 10px;padding-left:3px}
+#view-battles .dz57-countdown-backdrop{position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:#060a10d9;backdrop-filter:blur(8px);padding:18px}
+#view-battles .dz57-countdown-card{position:relative;isolation:isolate;text-align:center;width:min(460px,96vw);background:radial-gradient(ellipse at 50% 35%,#28372b 0%,#111720 55%,#0e1118 100%);border:1px solid #708e43;border-radius:22px;padding:31px 24px 34px;box-shadow:0 20px 110px #000e,0 0 60px #b8ff3e17;overflow:hidden}
+#view-battles .dz57-countdown-kicker{color:#b8ff3e;font-size:11px;font-weight:950;letter-spacing:2.2px}
+#view-battles .dz57-countdown-sub{color:#a5b1c1;font-size:13px;margin:4px 0 16px}
+#view-battles .dz57-countdown-number{font:950 clamp(92px,17vw,150px)/1 'Barlow Condensed',Impact,sans-serif;color:#c5ff64;text-shadow:0 0 40px #baff5270;font-variant-numeric:tabular-nums;animation:dz57-count-pulse .8s ease-in-out infinite alternate}
+#view-battles .dz57-countdown-progress{height:5px;border-radius:9px;background:#28303b;overflow:hidden;margin-top:17px}
+#view-battles .dz57-countdown-progress span{display:block;height:100%;width:100%;background:linear-gradient(90deg,#8ecc37,#c5ff64);transition:width .09s linear}
+#view-battles .dz57-countdown-caption{font-size:11px;color:#8d9da9;margin:14px 0 0}
+@keyframes dz57-count-pulse{from{transform:scale(.94);opacity:.86}to{transform:scale(1);opacity:1}}
+@media(max-width:640px){#view-battles #online-room .online-actions .dz57-code{width:100%}#view-battles #online-room .online-actions .dz57-start{width:100%}#view-battles #online-room .online-actions .dz57-invite,#view-battles #online-room .online-actions .dz57-leave{flex:1;justify-content:center;white-space:normal}}
+/* Lokalna bitwa z botami: ten sam pięciosekundowy countdown. */
+.dz57-local-countdown{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:260px;text-align:center;background:radial-gradient(ellipse at center,#28371d,#111720 65%);border:1px solid #516b33;border-radius:15px}
+.dz57-local-countdown strong{font-size:12px;letter-spacing:2px;color:#d0ff91}
+.dz57-local-countdown b{font:950 110px/1 'Barlow Condensed',Impact,sans-serif;color:#c5ff64;text-shadow:0 0 35px #a8ff4d50}
+.dz57-local-countdown small{color:#a6b0c0}
 </style><style>
 .case-card:focus-visible{outline:3px solid #c2a5ff;outline-offset:3px}
 .case-card:hover .case-tap{color:#fff}
@@ -1393,7 +1419,7 @@ async function startLobbyBattle(){
  const l=activeLobby;if(!l||!l.seats.includes('you')||!l.seats.every(Boolean))return;
  const cost=battleEntryCost(l.caseIds,l.multiplier);
  if(state.balance<cost){toast('Za mało wirtualnych PLN. Potrzebujesz '+fmt(cost)+' PLN.');return}
- battlePlaying=true;state.balance-=cost;save();
+ battlePlaying=true;
  activeLobby=null;closeModal('lobby-modal');renderBattles();
  const modal=document.getElementById('battle-modal');modal.classList.add('show');
  modal.querySelector('.modal').classList.add('battle-reveal-modal');
@@ -1402,6 +1428,14 @@ async function startLobbyBattle(){
  const backButton=modal.querySelector('.modal > .modal > button');
  // Przycisk powrotu jest ukryty podczas animacji.
  const returnButton=modal.querySelector('.modal > button');if(returnButton)returnButton.style.display='none';
+ // Lokalny countdown: nie losuj i nie pobieraj opłaty przed końcem 5 sekund.
+ const countTarget=document.getElementById('battle-result');
+ countTarget.innerHTML='<div class="dz57-local-countdown"><strong>BITWA ROZPOCZYNA SIĘ ZA</strong><b id="dz57-local-sec">5</b><small>Przygotuj się na pierwszą rundę</small></div>';
+ for(let second=5;second>=1;second--){
+  const label=document.getElementById('dz57-local-sec');if(label)label.textContent=second;
+  await delay(1000);
+ }
+ state.balance-=cost;save();
  const scores=Array(l.ffa||2).fill(0),logs=[],allBattleItems=[],allBattleWears=[],allBattlePrices=[],playerHistory=l.seats.map(()=>[]),yourIndex=l.seats.indexOf('you'),yourTeam=yourIndex<l.mode?0:1;
  for(let round=1;round<=l.rounds;round++){
   const c=cases[l.caseIds[round-1]];
@@ -1621,6 +1655,27 @@ let onlineSocket=null,onlineRoom=null,onlinePlayerId=sessionStorage.getItem('dz_
 sessionStorage.setItem('dz_online_id',onlinePlayerId);
 let onlinePending=false,onlineLastRound=0,onlineAwarded=new Set(),onlineRoundHistory=[];
 let onlineDisplayedScores=[];
+// v57: licznik startu dla każdego uczestnika oparty o czas serwera.
+let dz57CountdownTimer=null;
+function dz57StopCountdown(){
+ if(dz57CountdownTimer!==null){clearInterval(dz57CountdownTimer);dz57CountdownTimer=null;}
+}
+function dz57TickCountdown(){
+ const el=document.getElementById('dz57-countdown');
+ if(!el||!onlineRoom||onlineRoom.status!=='countdown'){
+  dz57StopCountdown();return;
+ }
+ const ms=Math.max(0,Number(onlineRoom.startsAt||Date.now())-Date.now());
+ const sec=Math.max(1,Math.ceil(ms/1000));
+ const number=el.querySelector('.dz57-countdown-number');if(number)number.textContent=sec;
+ const bar=el.querySelector('.dz57-countdown-progress span');if(bar)bar.style.width=(Math.min(100,ms/5000*100)).toFixed(1)+'%';
+ const small=document.querySelector('.dz57-inline-sec');if(small)small.textContent=sec;
+}
+function dz57StartCountdown(){
+ dz57StopCountdown();dz57TickCountdown();
+ dz57CountdownTimer=setInterval(dz57TickCountdown,80);
+}
+
 function onlineStatus(message){const el=document.getElementById('online-feed');if(el)el.innerHTML=message}
 function onlineSend(obj){if(!onlineSocket||onlineSocket.readyState!==1){toast('Brak połączenia z serwerem online');return false}onlineSocket.send(JSON.stringify({...obj,playerId:onlinePlayerId,nick:(document.getElementById('online-nick')?.value||'Gracz').trim().slice(0,20)}));return true}
 function onlineConnect(){
@@ -1628,7 +1683,7 @@ function onlineConnect(){
  const protocol=location.protocol==='https:'?'wss:':'ws:';
  onlineSocket=new WebSocket(protocol+'//'+location.host+'/ws');
  onlineSocket.onopen=()=>{document.getElementById('online-connection').textContent='● ONLINE';onlineStatus('Połączono. Utwórz pokój albo dołącz do znajomego.');const code=new URLSearchParams(location.search).get('room');if(code){showView('battles');document.getElementById('online-code').value=code;onlineJoin()}};
- onlineSocket.onclose=()=>{document.getElementById('online-connection').textContent='● ROZŁĄCZONO';onlineStatus('Utracono połączenie z serwerem. Odśwież stronę, aby połączyć się ponownie.');};
+ onlineSocket.onclose=()=>{dz57StopCountdown();if(onlineRoom?.status==='countdown'){onlineRoom=null;onlineRender()}document.getElementById('online-connection').textContent='● ROZŁĄCZONO';onlineStatus('Utracono połączenie z serwerem. Odśwież stronę, aby połączyć się ponownie.');};
  onlineSocket.onmessage=e=>{let msg;try{msg=JSON.parse(e.data)}catch{return}onlineMessage(msg)};
 }
 function onlinePreviewCase(){
@@ -1707,16 +1762,20 @@ function onlineCreate(){
 function onlineJoin(){onlineSend({type:'join',code:document.getElementById('online-code').value.trim().toUpperCase()})}
 function onlineSeat(index){onlineSend({type:'seat',index})}
 function onlineBot(index){onlineSend({type:'bot',index})}
-function onlineStart(){if(!onlineRoom)return;const cost=onlineRoom.cost;if(state.balance<cost){toast('Za mało wirtualnych PLN na bitwę');return}onlineSend({type:'start'})}
-function onlineLeave(){onlineSend({type:'leave'});onlineRoom=null;onlineRender()}
+function onlineStart(){if(!onlineRoom||onlineRoom.status!=='waiting')return;const cost=onlineRoom.cost;if(state.balance<cost){toast('Za mało wirtualnych PLN na bitwę');return}if(onlineSend({type:'start'})){const b=document.querySelector('.dz57-start');if(b){b.disabled=true;b.textContent='URUCHAMIANIE...'}}}
+function onlineLeave(){onlineSend({type:'leave'});onlineRoom=null;dz57StopCountdown();onlineRender()}
 function onlineCopy(){if(!onlineRoom)return;const url=new URL(location.href);url.searchParams.set('room',onlineRoom.code);navigator.clipboard?.writeText(url.toString()).then(()=>toast('Skopiowano link zaproszenia')).catch(()=>prompt('Skopiuj link:',url.toString()))}
-function onlineRender(){const el=document.getElementById('online-room'),setup=document.getElementById('online-setup');if(!onlineRoom){document.getElementById('view-battles')?.classList.remove('v55-battle-running');el.style.display='none';setup.style.display='';return}setup.style.display='none';el.style.display='';const r=onlineRoom;const mine=r.seats.findIndex(s=>s&&s.id===onlinePlayerId);const owner=r.owner===onlinePlayerId;
+function onlineRender(){const el=document.getElementById('online-room'),setup=document.getElementById('online-setup');if(!onlineRoom){dz57StopCountdown();document.getElementById('view-battles')?.classList.remove('v55-battle-running');el.style.display='none';setup.style.display='';return}setup.style.display='none';el.style.display='';const r=onlineRoom;const mine=r.seats.findIndex(s=>s&&s.id===onlinePlayerId);const owner=r.owner===onlinePlayerId;
  const slots=r.seats.map((s,i)=>`<div class="online-seat"><b>${r.ffa?'GRACZ '+(i+1):'DRUŻYNA '+(i<r.mode?'A':'B')+' · SLOT '+(i+1)}</b><span>${s?s.bot?'BOT': 'GRACZ '+safe(s.nick):'Wolne miejsce'}</span>${r.status==='waiting'&&owner&&s?.bot?`<button class="btn small" onclick="onlineBot(${i})">USUŃ BOTA</button>`:''}${r.status==='waiting'&&!s?`<button class="btn small" onclick="onlineSeat(${i})">ZAJMIJ</button>${owner?`<button class="btn small" onclick="onlineBot(${i})">+ BOT</button>`:''}`:''}</div>`).join('');
  const selected=(r.caseIds||[r.caseId]);
  const compact=r.status!=='waiting';
  const selectedHtml=compact?v55BattleStrip(selected,Math.min(onlineLastRound||1,selected.length),r.cost):'<div class="online-sequence-grid">'+selected.map((id,i)=>onlineSequenceCard(id,i,false)).join('')+'</div>';
  document.getElementById('view-battles')?.classList.toggle('v55-battle-running',compact);
- el.innerHTML=`<div class="online-actions"><b>KOD POKOJU: ${safe(r.code)}</b><button class="btn small" onclick="onlineCopy()">KOPIUJ LINK NA DISCORD</button><button class="btn small" onclick="onlineLeave()">OPUŚĆ POKÓJ</button></div><p class="muted">${r.rounds} różnych lub powtarzanych skrzynek · ${fmt(r.cost)} PLN / osoba · ${r.ffa?'FFA '+r.ffa:r.mode+' vs '+r.mode} · ${r.status==='waiting'?'OCZEKIWANIE':r.status==='playing'?'TRWA BITWA':'ZAKOŃCZONA'}</p><div class="online-seats">${slots}</div><div class="online-case-preview ${compact?'v55-preview-compact':''}" style="display:block">${compact?'':'<b>KOLEJNOŚĆ SKRZYNEK:</b>'}<div>${selectedHtml}</div></div>${r.status==='waiting'&&owner?`<button class="btn primary" onclick="onlineStart()" ${mine<0||r.seats.some(s=>!s)?'disabled':''}>START — WSZYSCY GOTOWI</button>`:''}<div id="online-live"></div>`;
+ const ready=mine>=0&&r.seats.every(Boolean);
+ const startControl=r.status==='waiting'&&owner?`<button class="btn small dz57-start" onclick="onlineStart()" ${ready?'':'disabled'}>START BITWY</button>`:r.status==='countdown'?`<span class="dz57-timewaiting">START ZA <span class="dz57-inline-sec">5</span> S</span>`:'';
+ const countdownPanel=r.status==='countdown'?`<div class="dz57-countdown-backdrop" id="dz57-countdown" role="status" aria-live="off"><div class="dz57-countdown-card"><span class="dz57-countdown-kicker">CASE BATTLE</span><h3>BITWA ZARAZ SIĘ ROZPOCZNIE</h3><p class="dz57-countdown-sub">Wszyscy gracze przygotowują się do pierwszej rundy</p><div class="dz57-countdown-number">5</div><div class="dz57-countdown-progress"><span></span></div><p class="dz57-countdown-caption">Losowanie wystartuje automatycznie</p></div></div>`:'';
+ el.innerHTML=`<div class="online-actions"><b class="dz57-code">KOD POKOJU: ${safe(r.code)}</b>${startControl}<button class="btn small dz57-invite" onclick="onlineCopy()">KOPIUJ LINK NA DISCORD</button><button class="btn small dz57-leave" onclick="onlineLeave()">OPUŚĆ POKÓJ</button></div>${r.status==='waiting'&&owner?`<p class="dz57-owner-hint">${ready?'Wszystkie miejsca są zajęte. Możesz rozpocząć bitwę.':'Przycisk startu odblokuje się po zapełnieniu wszystkich slotów.'}</p>`:''}<p class="muted">${r.rounds} różnych lub powtarzanych skrzynek · ${fmt(r.cost)} PLN / osoba · ${r.ffa?'FFA '+r.ffa:r.mode+' vs '+r.mode} · ${r.status==='waiting'?'OCZEKIWANIE':r.status==='countdown'?'START ZA 5 SEKUND':r.status==='playing'?'TRWA BITWA':'ZAKOŃCZONA'}</p><div class="online-seats">${slots}</div><div class="online-case-preview ${compact?'v55-preview-compact':''}" style="display:block">${compact?'':'<b>KOLEJNOŚĆ SKRZYNEK:</b>'}<div>${selectedHtml}</div></div><div id="online-live"></div>${countdownPanel}`;
+ if(r.status==='countdown')dz57StartCountdown();else dz57StopCountdown();
 }
 function onlineDrawBoard(scores){
  if(!onlineRoom)return;
@@ -1763,7 +1822,7 @@ function dzSellBattleFromSummary(){
 
 function onlineMessage(msg){
  if(msg.type==='error'){toast(msg.message);onlineStatus('⚠ '+safe(msg.message));return}
- if(msg.type==='room'){onlineRoom=msg.room;onlineRender();onlineStatus('Pokój '+safe(msg.room.code)+' · wyślij link koledze.');return}
+ if(msg.type==='room'){onlineRoom=msg.room;onlineRender();onlineStatus(msg.room.status==='countdown'?'Odliczanie trwa. Bitwa rozpocznie się automatycznie.':'Pokój '+safe(msg.room.code)+' · wyślij link koledze.');return}
  if(msg.type==='started'){onlineLastRound=0;onlineRoundHistory=[];onlineDisplayedScores=[];onlinePending=true;onlineStatus('Bitwa rozpoczęta! Wyniki losuje serwer.');if(onlineRoom){onlineRoom.status='playing';onlineRender()}return}
  if(msg.type==='round'){
   onlineLastRound=msg.round;
