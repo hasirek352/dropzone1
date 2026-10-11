@@ -1,0 +1,1 @@
+DROPZONE v49 — naprawa dodawania skrzynek do Case Battle. Wyrównano identyfikatory skrzynek do indeksów tablicy w index.html i cases.json. Oryginalne ID grafik zachowano jako artId. Podmień index.html oraz cases.json. Nie zmieniono szans, cen ani grafik.
