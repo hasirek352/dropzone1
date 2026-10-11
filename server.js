@@ -8,9 +8,30 @@ const cases=require('./cases.json');
 const rooms=new Map();
 const PORT=Number(process.env.PORT||3000);
 const server=http.createServer((req,res)=>{
- if(req.url==='/health'){res.writeHead(200,{'Content-Type':'text/plain'});return res.end('ok')}
- if(/^\/assets\/(?:case-\d{2}\.webp|emerald-knife-\d{2}\.svg)$/.test(req.url)){const file=path.join(__dirname,req.url.slice(1));res.writeHead(200,{'Content-Type':req.url.endsWith('.svg')?'image/svg+xml':'image/webp','Cache-Control':'public, max-age=3600'});return fs.createReadStream(file).pipe(res)}
- if(req.url==='/'||req.url.startsWith('/?')){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});return fs.createReadStream(path.join(__dirname,'index.html')).pipe(res)}
+ const url=(req.url||'/').split('?')[0];
+ if(url==='/health'){res.writeHead(200,{'Content-Type':'text/plain'});return res.end('ok')}
+ if(/^\/assets\/(?:case-\d{2}\.webp|emerald-knife-\d{2}\.svg)$/.test(url)){
+  const file=path.join(__dirname,url.slice(1));
+  fs.stat(file,(err,stat)=>{
+   if(err||!stat.isFile()){
+    // Nie wyłączaj serwera, gdy grafika nie została przesłana na GitHub.
+    res.writeHead(404,{'Content-Type':'text/plain','Cache-Control':'no-store'});
+    return res.end('Missing image');
+   }
+   res.writeHead(200,{'Content-Type':url.endsWith('.svg')?'image/svg+xml':'image/webp','Cache-Control':'public, max-age=3600'});
+   const stream=fs.createReadStream(file);
+   stream.on('error',e=>{console.error('Asset read error:',e.message);res.destroy()});
+   stream.pipe(res);
+  });
+  return;
+ }
+ if(url==='/'){
+  const file=path.join(__dirname,'index.html');
+  fs.readFile(file,(err,data)=>{
+   if(err){console.error('HTML read error:',err.message);res.writeHead(500);return res.end('Server error')}
+   res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});res.end(data);
+  });return;
+ }
  res.writeHead(404);res.end('Not found');
 });
 const wss=new WebSocketServer({server,path:'/ws',maxPayload:2048});
@@ -27,7 +48,7 @@ async function run(r){
  r.status='playing';r.matchId=crypto.randomUUID();broadcast(r,{type:'started'});const scores=Array(r.ffa||2).fill(0),allDrops=[];
  for(let n=1;n<=r.rounds;n++){
   const drops=r.seats.map(()=>pick(cases[r.caseIds[n-1]]));drops.forEach((d,i)=>{scores[r.ffa?i:Math.floor(i/r.mode)]+=d.value;allDrops.push(d)});
-  broadcast(r,{type:'round',round:n,caseId:r.caseIds[n-1],drops,scores});await sleep(5200);
+  broadcast(r,{type:'round',round:n,caseId:r.caseIds[n-1],drops,scores});await sleep(6500);
  }
  const extreme=r.rule==='underdog'?Math.min(...scores):Math.max(...scores);
  const winnerTeams=scores.map((x,i)=>x===extreme?i:-1).filter(i=>i>=0);
