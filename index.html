@@ -293,6 +293,14 @@
 /* v43: zwykle otwieranie przewija poziomo; bitwy online nadal pionowo */
 .case-reel-unit .case-reel-track{display:flex;flex-direction:row;align-items:center;width:max-content;height:100%}
 .case-reel-unit .case-reel{overflow:hidden;position:relative}
+
+/* v45: osobne okno wyniku bitwy */
+.dz-summary-overlay{position:fixed;inset:0;z-index:99999;background:#05050bc9;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
+.dz-summary-overlay.show{display:flex}
+.dz-summary-card{width:min(520px,100%);border:1px solid #7953a0;border-radius:18px;background:linear-gradient(145deg,#242033,#12131c);box-shadow:0 20px 80px #000b;padding:32px;text-align:center;position:relative}
+.dz-summary-card h2{font-size:27px;margin:5px 0 20px}.dz-summary-amount{font-size:38px;font-weight:900;color:#caff4d;margin-bottom:8px}
+.dz-summary-actions{display:grid;gap:10px;margin-top:26px}.dz-summary-actions button{min-height:46px}
+.dz-summary-close{position:absolute;top:12px;right:14px;background:none;border:0;color:#d8d2e6;font-size:25px;cursor:pointer}
 </style><style>
 .case-card:focus-visible{outline:3px solid #c2a5ff;outline-offset:3px}
 .case-card:hover .case-tap{color:#fff}
@@ -1137,6 +1145,33 @@ function onlineDrawBoard(scores){
   }).join('')||'<p class="muted">Jeszcze brak dropów</p>'}</div>`;
  }).join('')+'</div>';
 }
+
+let dzLastOnlineConfig=null;
+function dzCloseBattleSummary(){document.getElementById('dz-battle-summary')?.classList.remove('show')}
+function dzRepeatOnlineBattle(){
+ if(!dzLastOnlineConfig){toast('Brak zapisanych ustawień bitwy');return}
+ const config=dzLastOnlineConfig;
+ dzCloseBattleSummary();
+ onlineSelectedCases=[...config.caseIds];
+ const mode=document.getElementById('online-mode');if(mode)mode.value=config.ffa?'ffa'+config.ffa:String(config.mode);
+ onlineRenderSelected();
+ // Zakończony pokój musi zostać opuszczony przed utworzeniem kolejnego.
+ if(onlineRoom){onlineSend({type:'leave'});onlineRoom=null;onlineRender()}
+ if(!onlineSend({type:'create',mode:config.mode,ffa:config.ffa,caseIds:[...config.caseIds]}))toast('Połącz się z serwerem, aby powtórzyć bitwę');
+}
+function dzShowBattleSummary(win,drops,value){
+ const box=document.getElementById('dz-battle-summary');if(!box)return;
+ document.getElementById('dz-summary-title').textContent=win?'🏆 WYGRANA!':'⚔ KONIEC BITWY';
+ document.getElementById('dz-summary-value').textContent=fmt(value)+' PLN';
+ document.getElementById('dz-summary-caption').textContent=win?`${drops} zdobytych skinów dodano do ekwipunku`:'Tym razem nie zdobywasz skinów z bitwy';
+ const sell=document.getElementById('dz-summary-sell');sell.style.display=win&&latestBattleBatch.length?'':'none';
+ box.classList.add('show');
+}
+function dzSellBattleFromSummary(){
+ quickSellBattle();
+ if(!latestBattleBatch.length){const b=document.getElementById('dz-summary-sell');if(b)b.style.display='none';dzCloseBattleSummary()}
+}
+
 function onlineMessage(msg){
  if(msg.type==='error'){toast(msg.message);onlineStatus('⚠ '+safe(msg.message));return}
  if(msg.type==='room'){onlineRoom=msg.room;onlineRender();onlineStatus('Pokój '+safe(msg.room.code)+' · wyślij link koledze.');return}
@@ -1146,7 +1181,7 @@ function onlineMessage(msg){
   const el=document.getElementById('online-live');if(!el||!onlineRoom)return;
   const c=cases[msg.caseId],duration=window.matchMedia('(prefers-reduced-motion: reduce)').matches?150:4800;
   const players=msg.drops.map((d,i)=>({d,i,skin:{...skins[d.id],wear:d.wear,value:d.value}}));
-  el.innerHTML=`<h3>⚔ RUNDA ${msg.round} / ${onlineRoom.rounds} — ${safe(c.name)}</h3><p class="muted">Wyniki losuje serwer. Po animacji każdy gracz zobaczy dokładnie swój wygrany skin.</p><div class="dz-reveal-grid">${players.map(({i})=>`<section class="dz-reveal-player"><div class="dz-reveal-stage dz-reveal-spinning" id="dz-reveal-stage-${i}"><div class="dz-reveal-beam"></div><div class="case-reel dz-online-case-reel" id="dz-online-reel-${i}"><div class="case-reel-track" id="dz-online-track-${i}"></div><div class="case-reel-pointer"></div></div></div><div class="dz-reveal-player-head"><span>👤 ${safe(onlineRoom.seats[i]?.nick||'BOT')}</span><span class="dz-reveal-status" id="dz-reveal-status-${i}">OTWIERANIE...</span></div><div class="dz-reveal-result" id="online-result-${i}">Trwa otwieranie skrzynki...</div></section>`).join('')}</div><div id="online-scoreboard"></div><div id="online-drop-board"></div><div class="online-round-history" id="online-round-history"></div>`;
+  el.innerHTML=`<h3>⚔ RUNDA ${msg.round} / ${onlineRoom.rounds} — ${safe(c.name)}</h3><p class="muted">Wyniki losuje serwer. Po animacji każdy gracz zobaczy dokładnie swój wygrany skin.</p><div class="dz-reveal-grid">${players.map(({i})=>`<section class="dz-reveal-player"><div class="dz-reveal-stage dz-reveal-spinning" id="dz-reveal-stage-${i}"><div class="dz-reveal-beam"></div><div class="case-reel dz-online-case-reel" id="dz-online-reel-${i}"><div class="case-reel-track" id="dz-online-track-${i}"></div><div class="case-reel-pointer"></div></div></div><div class="dz-reveal-player-head"><span>👤 ${safe(onlineRoom.seats[i]?.nick||'BOT')}</span><span class="dz-reveal-status" id="dz-reveal-status-${i}">OTWIERANIE...</span></div><div class="dz-reveal-result" id="online-result-${i}">Trwa otwieranie skrzynki...</div></section>`).join('')}</div><div id="online-scoreboard"></div><div id="online-drop-board"></div>`;
   onlineDrawBoard(onlineDisplayedScores.length?onlineDisplayedScores:Array(onlineRoom.ffa||2).fill(0));
   // Ta sama taśma co w otwieraniu skrzynek. Serwer wybiera wynik przed animacją.
   players.forEach(({i,skin})=>{
@@ -1173,7 +1208,7 @@ function onlineMessage(msg){
    onlineDisplayedScores=msg.scores.slice();
    if(!onlineRoundHistory.some(entry=>entry.round===msg.round))onlineRoundHistory.push({round:msg.round,drops:msg.drops});
    onlineDrawBoard(onlineDisplayedScores);
-   const history=document.getElementById('online-round-history');if(history)history.innerHTML=onlineRoundHistory.map(entry=>`<details ${entry.round===snapshot?'open':''}><summary>RUNDA ${entry.round} — WYNIKI WSZYSTKICH GRACZY</summary><div class="online-history-items">${entry.drops.map((drop,i)=>`<div class="online-history-item"><b>${safe(onlineRoom.seats[i]?.nick||'BOT')}</b><small>${safe(skins[drop.id].name)} · ${WEAR_SHORT[drop.wear]}</small><strong>${fmt(drop.value)} PLN</strong></div>`).join('')}</div></details>`).join('');
+
   },duration+130);
   return;
  }
@@ -1182,13 +1217,15 @@ function onlineMessage(msg){
   const mySeat=onlineRoom?.seats.findIndex(s=>s&&s.id===onlinePlayerId)??-1;
   const winners=msg.winners||[];const win=mySeat>=0&&winners.includes(mySeat);
   if(!onlineAwarded.has(key)&&mySeat>=0){onlineAwarded.add(key);state.balance=Math.max(0,state.balance-(onlineRoom?.cost||0));state.battles++;if(win){for(const d of msg.allDrops){state.inventory.push(d.id);state.inventoryWear.push(d.wear);state.inventoryPrices.push(d.value)}latestBattleBatch=msg.allDrops.map(d=>({...d}));}state.history.unshift({mode:onlineRoom?.ffa?'ONLINE FFA':'ONLINE '+onlineRoom?.mode+'v'+onlineRoom?.mode,rounds:onlineRoom?.rounds||0,caseName:(onlineRoom?.caseIds||[onlineRoom?.caseId||0]).map(id=>cases[id]?.name||'Skrzynka').join(', '),win:win?'WYGRANA':'PRZEGRANA',score:msg.scores.map(fmt).join(' : ')});state.history=state.history.slice(0,10);save()}
-  const el=document.getElementById('online-live');if(el)el.insertAdjacentHTML('beforeend',`<div class="result show"><h2>${win?'🏆 WYGRANA!':'KONIEC BITWY'}</h2><p>${win?'Wszystkie dropy dodano do Twojego ekwipunku.':'Tym razem nie wygrywasz.'} · ${msg.allDrops.length} dropów · ${fmt(msg.allDrops.reduce((a,d)=>a+d.value,0))} PLN</p>${win?'<button class="btn primary" onclick="quickSellBattle()">💰 SPRZEDAJ DROPY Z BITWY</button>':''}</div>`);
+  dzLastOnlineConfig=onlineRoom?{mode:onlineRoom.mode,ffa:onlineRoom.ffa||0,caseIds:[...(onlineRoom.caseIds||[onlineRoom.caseId])]}:null;
+  const totalValue=msg.allDrops.reduce((a,d)=>a+d.value,0);
+  dzShowBattleSummary(win,msg.allDrops.length,totalValue);
   if(onlineRoom){onlineRoom.status='finished'}onlineStatus('Bitwa zakończona. Możesz utworzyć nowy pokój.');return;
  }
 }
 onlineFilterCases();onlineRenderSelected();
 document.getElementById('online-case').addEventListener('change',onlinePreviewCase);onlinePreviewCase();
 onlineConnect();
-</script><div id="dz-variant-overlay" class="dz-variant-overlay" onclick="if(event.target===this)this.classList.remove('show')"><div class="dz-variant-box"><button class="dz-variant-close" onclick="document.getElementById('dz-variant-overlay').classList.remove('show')">✕</button><div id="dz-variant-info"></div><p style="color:#9ea3b8;font-size:12px;margin-top:16px">Wirtualne PLN · demonstracyjne szanse, nie dane KeyDrop. Zakres w skali 1–100 000.</p></div></div></body></html>
+</script><div id="dz-variant-overlay" class="dz-variant-overlay" onclick="if(event.target===this)this.classList.remove('show')"><div class="dz-variant-box"><button class="dz-variant-close" onclick="document.getElementById('dz-variant-overlay').classList.remove('show')">✕</button><div id="dz-variant-info"></div><p style="color:#9ea3b8;font-size:12px;margin-top:16px">Wirtualne PLN · demonstracyjne szanse, nie dane KeyDrop. Zakres w skali 1–100 000.</p></div></div><div class="dz-summary-overlay" id="dz-battle-summary" role="dialog" aria-modal="true" aria-labelledby="dz-summary-title"><div class="dz-summary-card"><button class="dz-summary-close" onclick="dzCloseBattleSummary()" aria-label="Zamknij">×</button><h2 id="dz-summary-title">🏆 WYGRANA!</h2><div class="muted">ŁĄCZNA WARTOŚĆ DROPÓW</div><div class="dz-summary-amount" id="dz-summary-value">0,00 PLN</div><p class="muted" id="dz-summary-caption"></p><div class="dz-summary-actions"><button class="btn primary" id="dz-summary-sell" onclick="dzSellBattleFromSummary()">💰 SZYBKA SPRZEDAŻ</button><button class="btn" onclick="dzRepeatOnlineBattle()">⚔ STWÓRZ TAKĄ SAMĄ BITWĘ</button><button class="btn" onclick="dzCloseBattleSummary()">ZAMKNIJ</button></div></div></div></body></html>
 
 <!-- v41: nick pod animacja, nad dropami; rzeczywiste miniaturki skinow wymagaja osobnego potwierdzonego zrodla. -->
