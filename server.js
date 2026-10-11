@@ -9,7 +9,7 @@ const rooms=new Map();
 const PORT=Number(process.env.PORT||3000);
 const server=http.createServer((req,res)=>{
  if(req.url==='/health'){res.writeHead(200,{'Content-Type':'text/plain'});return res.end('ok')}
- if(/^\/assets\/case-\d{2}\.webp$/.test(req.url)){const file=path.join(__dirname,req.url.slice(1));res.writeHead(200,{'Content-Type':'image/webp','Cache-Control':'public, max-age=3600'});return fs.createReadStream(file).pipe(res)}
+ if(/^\/assets\/(?:case-\d{2}\.webp|emerald-knife-\d{2}\.svg)$/.test(req.url)){const file=path.join(__dirname,req.url.slice(1));res.writeHead(200,{'Content-Type':req.url.endsWith('.svg')?'image/svg+xml':'image/webp','Cache-Control':'public, max-age=3600'});return fs.createReadStream(file).pipe(res)}
  if(req.url==='/'||req.url.startsWith('/?')){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});return fs.createReadStream(path.join(__dirname,'index.html')).pipe(res)}
  res.writeHead(404);res.end('Not found');
 });
@@ -43,7 +43,7 @@ wss.on('connection',ws=>{
   if(m.type==='create'){
    if(r)return error(ws,'Najpierw opuść obecny pokój');const mode=Number(m.mode),ffa=Number(m.ffa);
    const caseIds=Array.isArray(m.caseIds)?m.caseIds.map(Number):[];
-   if(![1,2,3].includes(mode)||![0,3,4,5,6].includes(ffa)||caseIds.length<1||caseIds.length>30||caseIds.some(id=>!Number.isInteger(id)||!cases[id]))return error(ws,'Nieprawidłowe ustawienia lub skrzynki (maks. 30)');
+   if(![1,2,3].includes(mode)||![0,3,4,5,6].includes(ffa)||caseIds.length<1||caseIds.length>30||caseIds.some(id=>!Number.isInteger(id)||(!cases[id]||cases[id].hidden)))return error(ws,'Nieprawidłowe ustawienia lub skrzynki (maks. 30)');
    const code=crypto.randomBytes(4).toString('hex').toUpperCase();const cost=Math.round(caseIds.reduce((sum,id)=>sum+cases[id].price,0)*100)/100;
    const nr={code,owner:id,mode,ffa,caseId:caseIds[0],caseIds,rounds:caseIds.length,cost,status:'waiting',seats:Array(ffa||mode*2).fill(null),created:Date.now()};nr.seats[0]={id,nick,ws,bot:false};rooms.set(code,nr);publish(nr);return;
   }

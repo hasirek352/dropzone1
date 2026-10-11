@@ -49,3 +49,6 @@ Nowe autorskie okładki skrzynek (wektorowe kufry, indywidualne akcenty i numery
 
 ## v36 — Emerald knives artwork
 12 osobnych lokalnych ilustracji SVG dla modeli noży Emerald (ID 82–93). Obrazki ładowane z assets i nie są nadpisywane przez zewnętrzne API. Bez zmian szans, cen i multiplayera. Ilustracje stylizowane, nie są oficjalnymi renderami CS2.
+
+## v37: spójność tematycznych skrzynek
+Przebudowano pule 16 wyraźnie tematycznych skrzynek: Butterfly Heaven/Vault mają tylko Butterfly Knife, Karambit Room tylko Karambity, AK Factory tylko AK, AWP Hunter/Gungnir Hall tylko AWP, Medusa Chamber zawiera AWP Medusa i tematyczne skiny, Wild Lotus/Lotus Garden tylko AK, itd. Prawdopodobieństwa wariantów są dodatnie i sumują się do 100%. Nieprzypisane skrzynki ogólne pozostają bez zmian. Serwer obsługuje też pliki emerald-knife-XX.svg. Ceny/szanse są demonstracyjne.
