@@ -35,3 +35,6 @@ Odświeżony wygląd kafelków w katalogu, wyborze do bitwy i kolejności rund. 
 
 ## v32 — poprawka wskaźnika losowania
 W v31 animacja online nadal zawierała stałą szerokość kafelka 164px, podczas gdy CSS używał 175px / 145px. Naprawiono bezpośrednio w aktualnym kodzie: pozycja zatrzymania obliczana jest z offsetLeft i offsetWidth wygranego kafelka. Analogiczną poprawkę zastosowano w lokalnych rolkach. Wylosowane wyniki i szanse pozostają bez zmian.
+
+## v33 — skrzynki i losowanie
+Nowe autorskie okładki skrzynek (wektorowe kufry, indywidualne akcenty i numery), zamiast tego samego AWP na większości skrzynek. Online Case Battle ma nowy ekran ujawniania: podczas otwierania widać animowany kufer, po 3,2 s pokazuje się dokładny wynik przesłany przez serwer. Usunięto mylącą rolkę online, której zielony znacznik wskazywał inny przedmiot. Szanse i dane skrzynek oraz serwer pozostają bez zmian.
