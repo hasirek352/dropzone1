@@ -1,1 +1,0 @@
-DROPZONE v42: poprawka awarii 502 przy brakujących plikach assets/case-XX.webp. Brak obrazka zwraca 404 zamiast wyłączać Node.js. Nie naprawia osobno problemu animacji openingu.\n
