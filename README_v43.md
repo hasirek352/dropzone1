@@ -1,1 +1,0 @@
-DROPZONE v43 — naprawa zapisu wszystkich rund Case Battle Online oraz animacji otwierania skrzynek. Serwer czeka 6,5 s między rundami, animacja online trwa 4,8 s; zwykła ruletka otwierania przesuwa się poziomo zgodnie z układem kafelków. Pionowe animacje Case Battle bez zmian. Nie przeprowadzono testu w prawdziwej przeglądarce na Render.
