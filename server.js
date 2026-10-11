@@ -8,8 +8,8 @@ const cases=require('./cases.json');
 const rooms=new Map();
 const PORT=Number(process.env.PORT||3000);
 const server=http.createServer((req,res)=>{
- if(/^\/assets\/[a-z0-9-]+\.webp$/.test(req.url)){const f=path.join(__dirname,req.url);return fs.stat(f,(err,st)=>{if(err||!st.isFile()){res.writeHead(404);return res.end('Not found')}res.writeHead(200,{'Content-Type':'image/webp','Cache-Control':'public, max-age=86400','Content-Length':st.size});fs.createReadStream(f).pipe(res)})}
  if(req.url==='/health'){res.writeHead(200,{'Content-Type':'text/plain'});return res.end('ok')}
+ if(/^\/assets\/case-\d{2}\.webp$/.test(req.url)){const file=path.join(__dirname,req.url.slice(1));res.writeHead(200,{'Content-Type':'image/webp','Cache-Control':'public, max-age=3600'});return fs.createReadStream(file).pipe(res)}
  if(req.url==='/'||req.url.startsWith('/?')){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});return fs.createReadStream(path.join(__dirname,'index.html')).pipe(res)}
  res.writeHead(404);res.end('Not found');
 });

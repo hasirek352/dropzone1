@@ -40,9 +40,9 @@ W v31 animacja online nadal zawierała stałą szerokość kafelka 164px, podcza
 Nowe autorskie okładki skrzynek (wektorowe kufry, indywidualne akcenty i numery), zamiast tego samego AWP na większości skrzynek. Online Case Battle ma nowy ekran ujawniania: podczas otwierania widać animowany kufer, po 3,2 s pokazuje się dokładny wynik przesłany przez serwer. Usunięto mylącą rolkę online, której zielony znacznik wskazywał inny przedmiot. Szanse i dane skrzynek oraz serwer pozostają bez zmian.
 
 
-## v34 — grafiki 3D i tematyczne dropy
-- 24 nowe grafiki kuferków w katalogu, kreatorze bitwy, liście rund i animacji online, wykorzystane tematycznie we wszystkich 78 skrzynkach. Grafiki pochodzą z własnego projektu ilustracji, a nie ze strony KeyDrop.
-- Dla wybranych skrzynek dopasowano główne nagrody: AWP Medusa, AK-47 Wild Lotus, M4A1-S Blue Phosphor, AWP Dragon Lore, Butterfly Knife Fade, AWP Gungnir, AK-47 Gold Arabesque itd.
-- Każda dopisana główna nagroda ma pięć wariantów zużycia i niewielką szansę; pozostałe szanse są proporcjonalnie skalowane, suma nadal wynosi dokładnie 100%.
-- Dane szans lokalnego otwierania są identyczne z `cases.json` serwera (zamiast osobno wyliczanej puli w przeglądarce).
-- WAŻNE: przy wgrywaniu na GitHub dodaj również cały katalog `assets/` z 24 obrazkami `.webp`, inaczej grafiki się nie wyświetlą.
+## v35: 78 okładek i Emerald Empire
+- Każda z 78 skrzynek ma osobną kompozycję WebP `assets/case-00.webp` do `case-77.webp`. Grafiki powstały z 24 ilustracji bazowych z indywidualnymi motywami, kolorami, nazwami i detalami; nie są to 78 niezależnych renderów 3D.
+- Emerald Empire oraz Emerald Gate zawierają wyłącznie 12 typów noży Gamma Doppler Emerald, po pięć stanów zużycia. Szanse sumują się do 100%.
+- Są to ceny i skiny demonstracyjne; wartości są orientacyjne, nie odzwierciedlają rynku.
+- Serwer udostępnia statyczne obrazy `/assets/case-XX.webp`; bez folderu assets okładki nie będą działały.
+- Podmień wszystkie pliki i folder `assets` na GitHubie.
