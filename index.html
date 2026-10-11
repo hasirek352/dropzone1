@@ -301,6 +301,21 @@
 .dz-summary-card h2{font-size:27px;margin:5px 0 20px}.dz-summary-amount{font-size:38px;font-weight:900;color:#caff4d;margin-bottom:8px}
 .dz-summary-actions{display:grid;gap:10px;margin-top:26px}.dz-summary-actions button{min-height:46px}
 .dz-summary-close{position:absolute;top:12px;right:14px;background:none;border:0;color:#d8d2e6;font-size:25px;cursor:pointer}
+
+/* v46: koniec bitwy bez wyskakujacego okna; komunikat na ostatnim dropie */
+.dz-reveal-stage{position:relative;overflow:hidden}
+.dz-reveal-stage.dz-final-lost .dz-reveal-won{filter:blur(9px) brightness(.36);transform:scale(.97);pointer-events:none;transition:filter .45s,transform .45s}
+.dz-reveal-stage.dz-final-won .dz-reveal-won{filter:brightness(.65);transition:filter .45s}
+.dz-finish-cover{position:absolute;inset:0;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:9px;padding:15px;background:#0b0914a6;animation:dzFinishIn .45s ease-out both}
+.dz-final-lost .dz-finish-cover{background:#1109109c}
+.dz-final-won .dz-finish-cover{background:#0b1d1599}
+.dz-finish-cover strong{font:900 clamp(24px,3vw,42px) 'Barlow Condensed',Impact,sans-serif;letter-spacing:1px;color:#ff899e;text-shadow:0 3px 20px #000}
+.dz-final-won .dz-finish-cover strong{color:#b7ff61}
+.dz-finish-cover b{font-size:clamp(17px,2vw,25px);color:#d5ff8b}
+.dz-finish-cover small{font-size:11px;color:#ded8ea;font-weight:800}
+.dz-battle-end-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:16px;padding:18px;background:#171324;border:1px solid #514069;border-radius:9px}
+.dz-battle-end-actions .btn{min-height:45px}
+@keyframes dzFinishIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
 </style><style>
 .case-card:focus-visible{outline:3px solid #c2a5ff;outline-offset:3px}
 .case-card:hover .case-tap{color:#fff}
@@ -1219,7 +1234,30 @@ function onlineMessage(msg){
   if(!onlineAwarded.has(key)&&mySeat>=0){onlineAwarded.add(key);state.balance=Math.max(0,state.balance-(onlineRoom?.cost||0));state.battles++;if(win){for(const d of msg.allDrops){state.inventory.push(d.id);state.inventoryWear.push(d.wear);state.inventoryPrices.push(d.value)}latestBattleBatch=msg.allDrops.map(d=>({...d}));}state.history.unshift({mode:onlineRoom?.ffa?'ONLINE FFA':'ONLINE '+onlineRoom?.mode+'v'+onlineRoom?.mode,rounds:onlineRoom?.rounds||0,caseName:(onlineRoom?.caseIds||[onlineRoom?.caseId||0]).map(id=>cases[id]?.name||'Skrzynka').join(', '),win:win?'WYGRANA':'PRZEGRANA',score:msg.scores.map(fmt).join(' : ')});state.history=state.history.slice(0,10);save()}
   dzLastOnlineConfig=onlineRoom?{mode:onlineRoom.mode,ffa:onlineRoom.ffa||0,caseIds:[...(onlineRoom.caseIds||[onlineRoom.caseId])]}:null;
   const totalValue=msg.allDrops.reduce((a,d)=>a+d.value,0);
-  dzShowBattleSummary(win,msg.allDrops.length,totalValue);
+  // Podsumowanie bez modala: ostatni drop przegranych rozmywa sie,
+  // a zwyciezcy widza swoj wynik i laczna wartosc zdobytych przedmiotow.
+  const seats=onlineRoom?.seats||[];
+  const winningSeats=new Set(winners);
+  seats.forEach((seat,i)=>{
+   const stage=document.getElementById('dz-reveal-stage-'+i);
+   if(!stage)return;
+   const isWinner=winningSeats.has(i);
+   stage.classList.add(isWinner?'dz-final-won':'dz-final-lost');
+   const ownScore=Number(msg.scores?.[i]||0);
+   const awardedValue=isWinner?totalValue:0;
+   const cover=document.createElement('div');cover.className='dz-finish-cover';
+   cover.innerHTML=isWinner?`<strong>🏆 WYGRAŁEŚ!</strong><small>ŁĄCZNA WYGRANA</small><b>${fmt(awardedValue)} PLN</b><small>Twój wynik: ${fmt(ownScore)} PLN</small>`:`<strong>PRZEGRAŁEŚ</strong><small>Twój wynik: ${fmt(ownScore)} PLN</small>`;
+   stage.appendChild(cover);
+   const status=document.getElementById('dz-reveal-status-'+i);
+   if(status)status.textContent=isWinner?'🏆 WYGRANA':'PRZEGRANA';
+  });
+  const live=document.getElementById('online-live');
+  if(live){
+   const oldActions=document.getElementById('dz-battle-end-actions');if(oldActions)oldActions.remove();
+   const actions=document.createElement('div');actions.id='dz-battle-end-actions';actions.className='dz-battle-end-actions';
+   actions.innerHTML=`${win&&latestBattleBatch.length?'<button class="btn primary" onclick="dzSellBattleFromSummary()">💰 SZYBKA SPRZEDAŻ</button>':''}<button class="btn" onclick="dzRepeatOnlineBattle()">⚔ STWÓRZ TAKĄ SAMĄ BITWĘ</button>`;
+   live.appendChild(actions);
+  }
   if(onlineRoom){onlineRoom.status='finished'}onlineStatus('Bitwa zakończona. Możesz utworzyć nowy pokój.');return;
  }
 }
