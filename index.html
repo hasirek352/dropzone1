@@ -316,6 +316,13 @@
 .dz-battle-end-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:16px;padding:18px;background:#171324;border:1px solid #514069;border-radius:9px}
 .dz-battle-end-actions .btn{min-height:45px}
 @keyframes dzFinishIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+
+/* DROPZONE v47 — wyśrodkowana wygrana po otwarciu */
+.dz-case-win-summary{margin:16px auto 22px;padding:26px 16px;max-width:780px;text-align:center;border:1px solid #8763bd;background:radial-gradient(ellipse at top,#322045,#15111e 78%);box-shadow:0 0 35px #b36fff18}
+.dz-case-win-label{font-size:12px;font-weight:900;letter-spacing:1.5px;color:#e0c6ff}
+.dz-case-win-total{font-size:clamp(28px,5vw,48px);line-height:1.3;color:#c9ff4d;font-weight:1000;margin:12px 0 20px;text-shadow:0 0 22px #a4ff3940}
+.dz-case-win-summary .quick-buttons{display:flex;justify-content:center;flex-wrap:wrap;gap:12px}
+.dz-case-win-summary .quick-buttons .btn{min-width:215px}
 </style><style>
 .case-card:focus-visible{outline:3px solid #c2a5ff;outline-offset:3px}
 .case-card:hover .case-tap{color:#fff}
@@ -737,11 +744,11 @@ function quickSellBattle(){
 // Jednorazowy bonus testowy dla istniejących kont — nie nadpisuje ekwipunku.
 if(!state.v15TestBonus){state.balance+=1000000;state.v15TestBonus=true;try{localStorage.setItem(storageKey,JSON.stringify(state))}catch(e){}}
 function claimDemoBonus(){
- const key='dz_v25_bonus_claimed';
- if(localStorage.getItem(key)==='yes'){toast('Bonus 1 000 000 PLN już odebrany w tej przeglądarce.');return}
+ // Wirtualny bonus testowy, dostępny wielokrotnie bez płatności.
  state.balance+=1000000;
- localStorage.setItem(key,'yes');save();toast('🎁 Dodano 1 000 000 wirtualnych PLN!');
+ save();toast('🎁 Dodano 1 000 000 wirtualnych PLN!');
 }
+
 let currentCase=0,mode=1,activeLobby=null,skinImagesReady=false;
 function save(){try{localStorage.setItem(storageKey,JSON.stringify(state))}catch(e){}updateUI()}
 function fmt(n){return Number(n).toLocaleString('pl-PL',{minimumFractionDigits:2,maximumFractionDigits:2})}
@@ -808,13 +815,24 @@ function pickSkin(c){return drawCaseVariant(c)}
 let latestCaseBatch=[];
 function quickSellLatestCase(){
  if(caseSpinning||!latestCaseBatch.length)return;
- const total=latestCaseBatch.reduce((sum,s)=>sum+s.value,0);
- if(!confirm(`Sprzedać ${latestCaseBatch.length} skinów z ostatniego otwarcia za ${fmt(total)} wirtualnych PLN?`))return;
- for(const item of latestCaseBatch){const idx=state.inventory.findLastIndex((id,i)=>id===item.id&&state.inventoryWear[i]===item.wear&&invPrice(i)===item.value);if(idx!==-1){removeInventory(idx)}}
+ const indices=[],used=new Set();
+ for(const item of latestCaseBatch){
+  let found=-1;
+  for(let j=state.inventory.length-1;j>=0;j--){
+   if(!used.has(j)&&state.inventory[j]===item.id&&state.inventoryWear[j]===item.wear&&Math.abs(invPrice(j)-item.value)<0.001){found=j;break}
+  }
+  if(found<0){toast('Nie znaleziono wszystkich skinów z ostatniego otwarcia w ekwipunku.');return}
+  used.add(found);indices.push(found);
+ }
+ const total=indices.reduce((sum,i)=>sum+invPrice(i),0);
+ if(!confirm(`Sprzedać ${indices.length} skinów z ostatniego otwarcia za ${fmt(total)} wirtualnych PLN?`))return;
+ indices.sort((a,b)=>b-a).forEach(i=>removeInventory(i));
  state.balance+=total;latestCaseBatch=[];save();
- const actions=document.getElementById('case-quick-actions');if(actions)actions.innerHTML=`<div class="quick-sold">✓ Sprzedano dropy za ${fmt(total)} PLN. Możesz otworzyć ponownie.</div><button class="btn primary" onclick="openCase()">↻ OTWÓRZ PONOWNIE</button>`;
+ const actions=document.getElementById('case-quick-actions');
+ if(actions)actions.innerHTML=`<div class="quick-sold">✓ SPRZEDANO ZA ${fmt(total)} PLN — SALDO ZAKTUALIZOWANE</div><div class="quick-buttons"><button class="btn primary" onclick="openCase()">↻ OTWÓRZ PONOWNIE (${caseQty}×)</button></div>`;
  toast('Szybka sprzedaż: +'+fmt(total)+' wirtualnych PLN');
 }
+
 function openCase(){
  if(caseSpinning)return;
  const c=cases[currentCase],qty=caseQty,totalCost=c.price*qty;
@@ -854,7 +872,7 @@ function openCase(){
  setTimeout(()=>{
   winners.forEach(s=>{state.inventory.push(s.id);state.inventoryWear.push(s.wear??2);state.inventoryPrices.push(s.value)});latestCaseBatch=winners.map(s=>({id:s.id,value:s.value,wear:s.wear}));save();
   result.innerHTML=`<div class="eyebrow">✦ WYLOSOWANO ${qty} ${qty===1?'SKIN':'SKINÓW'}</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin-top:15px">${winners.map(s=>`<div class="drop-mini" style="--rarity:${rarityColor(s)}">${gunSVG(s)}<strong>${safe(s.name)}</strong><small>${safe(s.rarity)} · ${wearText(s.wear)} · ${fmt(s.value)} PLN</small></div>`).join('')}</div>`;
-  result.innerHTML+=`<div class="case-quick-actions" id="case-quick-actions"><div class="quick-summary">ŁĄCZNA WARTOŚĆ DROPÓW: <strong>${fmt(winners.reduce((sum,s)=>sum+s.value,0))} PLN</strong></div><div class="quick-buttons"><button class="btn quick-sell" onclick="quickSellLatestCase()">💰 SPRZEDAJ WSZYSTKIE Z TEGO OTWARCIA</button><button class="btn primary" onclick="openCase()">↻ OTWÓRZ PONOWNIE (${qty}×)</button></div><p class="hint">Szybka sprzedaż dotyczy tylko skinów z tego otwarcia. Pozostały ekwipunek zostaje bez zmian.</p></div>`;
+  result.insertAdjacentHTML('afterbegin',`<div class="case-quick-actions dz-case-win-summary" id="case-quick-actions"><div class="dz-case-win-label">✦ ŁĄCZNA WARTOŚĆ WYLOSOWANYCH SKINÓW</div><div class="dz-case-win-total">${fmt(winners.reduce((sum,s)=>sum+s.value,0))} PLN</div><div class="quick-buttons"><button class="btn quick-sell" onclick="quickSellLatestCase()">💰 ODBIERZ KASĘ — SPRZEDAJ DROPY</button><button class="btn primary" onclick="openCase()">↻ OTWÓRZ PONOWNIE (${qty}×)</button></div><p class="hint">Sprzedaż dodaje wirtualne PLN do salda. Możesz też zachować skiny w ekwipunku.</p></div>`);
   result.classList.add('show');caption.textContent='✓ WSZYSTKIE LOSOWANIA ZAKOŃCZONE — SKINY DODANE DO EKWIPUNKU';
   caseSpinning=false;document.querySelectorAll('#case-qty button').forEach(b=>b.disabled=false);updateCaseButton();
   toast('Zdobyto '+qty+' '+(qty===1?'skin':'skinów')+'!');
