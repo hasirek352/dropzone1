@@ -26,3 +26,6 @@ W Case Battle Online przycisk WYBIERZ SKRZYNKI otwiera galerię 78 skrzynek z gr
 - Bez zmian w `cases.json`, `server.js`, `package.json`: pula 78 skrzynek, losowania serwerowe i multiplayer pozostają takie same.
 - To oryginalna implementacja inspirowana stylem, a nie kopia oryginalnych grafik, kodu lub marki KeyDrop.
 - Po wdrożeniu odśwież Ctrl+F5. Przetestuj tworzenie pokoju i rundy na dwóch komputerach.
+
+## v30 — poprawka zgodności rolki z dropem
+Usunięto błędne sztywne obliczanie przesunięcia rolki (164 px), które nie zgadzało się z faktycznym CSS v29 (175 px desktop / 145 px mobile). Wskaźnik jest teraz centrowany na rzeczywistym kafelku wygranej przy pomocy offsetLeft/offsetWidth, a wynik nadal pochodzi z serwera. Wygrany kafelek zostaje dodatkowo podświetlony po zakończeniu animacji.
