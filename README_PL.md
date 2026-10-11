@@ -15,3 +15,5 @@
 
 **Uwaga:** To demo wyłącznie z wirtualnymi PLN. Saldo i ekwipunek są lokalne w przeglądarce, bez kont i zabezpieczeń przed manipulacją. Bonus jest jednorazowy na przeglądarkę, nie na osobę. Nie używać do prawdziwych pieniędzy.
 \n\n## v26 — widoczne dropy i sumowanie\nW bitwie online pod rolkami jest stała tablica skinów każdego gracza z nazwą, stanem, ceną i rundą. Po zakończeniu każdej animacji wynik zostaje dodany do listy, a suma drużyny lub gracza jest aktualizowana. Poprzednie dropy pozostają widoczne w kolejnych rundach.\n
+## v27 — kafelkowy wybór skrzynek i większe rolki
+W Case Battle Online przycisk WYBIERZ SKRZYNKI otwiera galerię 78 skrzynek z grafikami poglądowymi skinów, wyszukiwaniem, cenami i licznikami + / −. Wybrane skrzynki można ustawić w dowolnej kolejności (kolejność dodawania). Rolki online mają większe kafelki i centralny znacznik. Wyniki i sumy z v26 pozostają. Grafiki w kafelkach są poglądowymi skinami z puli, nie oryginalnymi grafikami KeyDrop.
