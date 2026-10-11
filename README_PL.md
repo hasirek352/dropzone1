@@ -1,11 +1,28 @@
-# DROPZONE v51 — porządek w grafikach i katalog CS2
+# DROPZONE v53 — 18 skrzynek i grafiki
 
-W katalogu skrzynek zostało tylko HIGH ROLLER, BUTTERFLY, SPORT, PANDORA i LORE. W folderze `assets` znajduje się tylko 5 odpowiadających im grafik WebP.
+Gotowy komplet plików do wgrania do repozytorium GitHub `hasirek352/dropzone1`.
 
-Po wejściu na stronę otwórz sekcję **SKINY CS2**: nowa wyszukiwarka, filtry Noże / Rękawice / Bronie / Naklejki, strony katalogu. Katalog graficzny pobierany jest na żywo z ByMykel/CSGO-API; zwykle obejmuje tysiące skinów, ale wymaga połączenia internetowego i dostępności tego API. Wersje Doppler/Gamma Doppler dobierane są według fazy.
+## Co jest w paczce
+- Dotychczasowe pięć skrzynek HIGH ROLLER, BUTTERFLY, SPORT, PANDORA, LORE.
+- 13 nowych: PREMIUM KNIVES, ARROW, EMERALD, GLOVES, GEMSTONE CASE, PORCELAIN CASE, EMERALD CASE, ROYAL, HOWL, SHATTERED, AMETHYST, BLACK PEARL, SCARLET.
+- 13 różnych nowych grafik, pliki `assets/case-84.webp` do `assets/case-96.webp`, plus pięć dotychczasowych.
+- Każda skrzynka ma własną pulę skinów, ceny i szanse sumujące się do 100%.
+- Case Battle lokalne i online obsługują skrzynki o ID 0–17. Ekwipunek zachowuje stare ID.
+- Miniatury samych skinów są pobierane z ByMykel/CSGO-API po uruchomieniu strony, a nie są pakowane w ZIP. Dostęp zależy od zewnętrznego źródła.
+- Projekt korzysta wyłącznie z wirtualnych PLN (bez realnych wpłat).
 
-**Do wgrania na GitHub**: `index.html`, `server.js`, `cases.json`, `package.json` i 5 plików z `assets`. Żeby stare grafiki zniknęły także z GitHuba, usuń tam wszystkie pozostałe pliki w starym `assets`, pozostawiając `case-79.webp` do `case-83.webp`. Samo dodanie nowej paczki nie kasuje plików już obecnych na GitHubie.
+## Uwaga dotycząca cen i dropów
+Źródła: publiczne strony KeyDrop (screeny użytkownika) i CSGO-SKINS (dane przeglądane 2026-10-11).
+Ceny czterech skrzynek KeyDrop pochodzą ze screenów. W sześciu skrzynkach CSGO-SKINS stosujemy ceny PLN uzgodnione w rozmowie. Ceny GEMSTONE CASE, PORCELAIN CASE i EMERALD CASE przeliczono z kwot EUR widocznych w trakcie przygotowania (kurs roboczy 4,3861 PLN/EUR).
+Wartości skinów z CSGO-SKINS przeliczono z EUR do wirtualnych PLN. Niektóre pule mają uproszczoną wersję stanów/StatTrak oraz znormalizowane wagi, więc nie należy traktować ich jako dokładnej kopii procentów i wartości z serwisów źródłowych.
+Grafiki okładek są oryginalnymi ilustracjami inspirowanymi tematami, a nie zdjęciami z KeyDrop.
 
-Wszystkie ceny to wirtualne PLN. Nowe skiny z przeglądarki NIE trafiają automatycznie do skrzynek; zawartość pięciu obecnych skrzynek pozostaje bez zmian.
+## Instalacja
+Wgraj wszystkie pliki i folder `assets` do korzenia repozytorium. Zachowaj strukturę folderów. Render powinien wdrożyć po zatwierdzeniu. Odśwież Ctrl+F5. Nie usuwaj ekwipunku z pamięci przeglądarki.
 
-Pełne informacje: `README_v51.md`.
+## Test po wdrożeniu
+1. `/health` odpowiada `ok`.
+2. Katalog pokazuje 18 skrzynek.
+3. PREMIUM KNIVES / EMERALD CASE mają osobne okładki i listy skinów.
+4. W Case Battle dodanie skrzynki `SCARLET` zwiększa licznik rund i koszt, a bitwa startuje.
+5. Suma szans dropów to 100% dla każdej skrzynki.
